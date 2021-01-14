@@ -17,12 +17,10 @@ package se.trixon.cric;
 
 import de.jangassen.MenuToolkit;
 import java.util.Arrays;
-import java.util.Optional;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.DialogPane;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
@@ -129,17 +127,19 @@ public class App extends Application {
     }
 
     private void displayOptions() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        var alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initOwner(mStage);
         alert.setTitle(Dict.OPTIONS.toString());
         alert.setGraphic(null);
         alert.setHeaderText(null);
+        alert.setResizable(true);
 
-        final DialogPane dialogPane = alert.getDialogPane();
-        OptionsPanel optionsPanel = new OptionsPanel();
+        var optionsPanel = new OptionsPanel();
+        optionsPanel.load();
+        var dialogPane = alert.getDialogPane();
         dialogPane.setContent(optionsPanel);
 
-        Optional<ButtonType> result = FxHelper.showAndWait(alert, mStage);
+        var result = FxHelper.showAndWait(alert, mStage);
         if (result.get() == ButtonType.OK) {
             optionsPanel.save();
         }

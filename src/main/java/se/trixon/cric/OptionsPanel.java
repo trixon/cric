@@ -15,7 +15,10 @@
  */
 package se.trixon.cric;
 
+import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
+import se.trixon.almond.util.fx.control.FileChooserPane;
+import static se.trixon.cric.Options.*;
 
 /**
  *
@@ -23,7 +26,29 @@ import javafx.scene.layout.VBox;
  */
 public class OptionsPanel extends VBox {
 
+    private final Options mOptions = Options.getInstance();
+
+    private FileChooserPane mJLinkFileChooserPane;
+
+    public OptionsPanel() {
+        createUI();
+    }
+
+    void load() {
+        mJLinkFileChooserPane.setPath(mOptions.get(KEY_JLINK, "/path/to/jlink"));
+    }
+
     void save() {
+        mOptions.put(KEY_JLINK, mJLinkFileChooserPane.getPathAsString());
+    }
+
+    private void createUI() {
+        mJLinkFileChooserPane = new FileChooserPane("jlink", "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
+        getChildren().setAll(
+                mJLinkFileChooserPane
+        );
+
+        setPrefSize(480, 360);
     }
 
 }

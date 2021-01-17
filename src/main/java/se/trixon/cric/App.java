@@ -53,9 +53,10 @@ public class App extends Application {
     private Action mAboutAction;
 
     private final AlmondFx mAlmondFX = AlmondFx.getInstance();
+    private AppForm mAppForm;
     private Action mOptionsAction;
     private BorderPane mRoot;
-
+    private final RunStateManager mRunStateManager = RunStateManager.getInstance();
     private Stage mStage;
 
     public static void main(String[] args) {
@@ -79,10 +80,11 @@ public class App extends Application {
 
     private void createUI() {
         var addAction = new Action(Dict.ADD.toString(), actionEvent -> {
-            System.out.println("add");
+            mAppForm.profileEdit(null);
         });
         addAction.setGraphic(MaterialIcon._Content.ADD.getImageView(ICON_SIZE_TOOLBAR));
         FxHelper.setTooltip(addAction, new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
+        addAction.disabledProperty().bind(mRunStateManager.runningProperty());
 
         mOptionsAction = new Action(Dict.OPTIONS.toString(), actionEvent -> {
             displayOptions();
@@ -117,6 +119,7 @@ public class App extends Application {
 
         mRoot = new BorderPane();
         mRoot.setTop(toolBar);
+        mRoot.setCenter(mAppForm = new AppForm());
         var scene = new Scene(mRoot);
 
         mStage.setScene(scene);

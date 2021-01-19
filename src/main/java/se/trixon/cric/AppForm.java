@@ -29,6 +29,7 @@ import java.util.logging.Logger;
 import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
@@ -43,7 +44,7 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.io.FileUtils;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
 import se.trixon.almond.util.Dict;
@@ -73,14 +74,46 @@ public class AppForm extends BorderPane {
     }
 
     void profileEdit(Profile profile) {
-        Profile p = new Profile();
-        p.setName(RandomStringUtils.randomAlphabetic(5, 10));
-        p.setDescription(RandomStringUtils.randomAlphabetic(10, 15));
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initOwner(getStage());
+        alert.setResizable(true);
+        String title = Dict.EDIT.toString();
+        boolean addNew = false;
+        boolean clone = profile != null && profile.getName() == null;
 
-        mProfileManager.getProfiles().add(p);
+        if (profile == null) {
+            title = Dict.ADD.toString();
+            addNew = true;
+            profile = new Profile();
+            profile.setSourceDir(FileUtils.getUserDirectory());
+            profile.setOutput(FileUtils.getUserDirectory());
+        } else if (clone) {
+            title = Dict.CLONE.toString();
+            profile.setLastRun(0);
+        }
 
-        profilesSave();
-        populateProfiles(p);
+        alert.setTitle(title);
+        alert.setGraphic(null);
+        alert.setHeaderText(null);
+
+        var profilePanel = new ProfilePanel(profile);
+        var dialogPane = alert.getDialogPane();
+        var button = (Button) dialogPane.lookupButton(ButtonType.OK);
+        button.setText(Dict.SAVE.toString());
+
+        dialogPane.setContent(profilePanel);
+        profilePanel.setOkButton(button);
+
+        Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
+        if (result.get() == ButtonType.OK) {
+            profilePanel.save();
+            if (addNew || clone) {
+                mProfiles.add(profile);
+            }
+
+            profilesSave();
+            populateProfiles(profile);
+        }
     }
 
     private void createUI() {
@@ -89,15 +122,19 @@ public class AppForm extends BorderPane {
         mListView = new ListView<>();
         mListView.setCellFactory(listView -> new ProfileListCell());
         mListView.disableProperty().bind(mRunStateManager.runningProperty());
-        mListView.setPrefWidth(350);
+        mListView.setPrefWidth(400);
 
         var welcomeLabel = new Label(mBundle.getString("welcome"));
-        welcomeLabel.setFont(Font.font(mDefaultFont.getName(), FontPosture.ITALIC, 18));
+        welcomeLabel.setFont(Font.font(mDefaultFont.getName(), FontPosture.ITALIC, mDefaultFont.getSize()));
 
         mListView.setPlaceholder(welcomeLabel);
 
         setLeft(mListView);
         setCenter(new Label("y"));
+    }
+
+    private Stage getStage() {
+        return (Stage) getScene().getWindow();
     }
 
     private void populateProfiles(Profile profile) {
@@ -118,9 +155,8 @@ public class AppForm extends BorderPane {
     }
 
     private void profileRemove(Profile profile) {
-        var stage = (Stage) getScene().getWindow();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.initOwner(stage);
+        alert.initOwner(getStage());
         alert.setTitle(Dict.Dialog.TITLE_PROFILE_REMOVE.toString() + "?");
         String message = String.format(Dict.Dialog.MESSAGE_PROFILE_REMOVE.toString(), profile.getName());
         alert.setHeaderText(message);
@@ -129,7 +165,7 @@ public class AppForm extends BorderPane {
         ButtonType cancelButtonType = new ButtonType(Dict.CANCEL.toString(), ButtonBar.ButtonData.CANCEL_CLOSE);
         alert.getButtonTypes().setAll(removeButtonType, cancelButtonType);
 
-        Optional<ButtonType> result = FxHelper.showAndWait(alert, stage);
+        Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
         if (result.get() == removeButtonType) {
             mProfiles.remove(profile);
             profilesSave();

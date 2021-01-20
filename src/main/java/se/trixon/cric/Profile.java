@@ -59,8 +59,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
     private boolean mNoManPages;
     @SerializedName("output")
     private File mOutput;
-    @SerializedName("source")
-    private File mSourceDir;
     @SerializedName("stripDebug")
     private boolean mStripDebug;
     private transient StringBuilder mValidationErrorBuilder = new StringBuilder();
@@ -123,14 +121,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return mOutput;
     }
 
-    public File getSourceDir() {
-        return mSourceDir;
-    }
-
-    public String getSourceDirAsString() {
-        return mSourceDir == null ? "" : mSourceDir.getPath();
-    }
-
     public String getValidationError() {
         return mValidationErrorBuilder.toString();
     }
@@ -161,10 +151,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public boolean isValid() {
         mValidationErrorBuilder = new StringBuilder();
-
-        if (mSourceDir == null || !mSourceDir.isDirectory()) {
-            addValidationError(String.format(mBundle.getString("invalid_source_dir"), mSourceDir));
-        }
 
         if (mOutput == null || !mOutput.isDirectory()) {
             addValidationError(String.format(mBundle.getString("invalid_dest_dir"), mOutput));
@@ -223,10 +209,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public void setOutput(File dest) {
         mOutput = dest;
-    }
-
-    public void setSourceDir(File source) {
-        mSourceDir = source;
     }
 
     public void setStripDebug(boolean stripDebug) {

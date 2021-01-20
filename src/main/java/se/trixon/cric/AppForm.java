@@ -44,7 +44,6 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-import org.apache.commons.io.FileUtils;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
 import se.trixon.almond.util.Dict;
@@ -86,8 +85,6 @@ public class AppForm extends BorderPane {
             title = Dict.ADD.toString();
             addNew = true;
             profile = new Profile();
-            profile.setSourceDir(FileUtils.getUserDirectory());
-            profile.setOutput(FileUtils.getUserDirectory());
         } else if (clone) {
             title = Dict.CLONE.toString();
             profile.setLastRun(0);

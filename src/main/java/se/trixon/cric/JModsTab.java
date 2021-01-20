@@ -53,7 +53,7 @@ public class JModsTab extends Tab {
 
         setClosable(tabCounter > 0);
         setContent(mBorderPane);
-        setText("jmods #" + tabCounter);
+        setText("module-path #" + tabCounter);
 
         if (modulePath != null) {
             load(modulePath);

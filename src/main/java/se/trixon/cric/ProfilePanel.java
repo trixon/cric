@@ -127,17 +127,17 @@ public class ProfilePanel extends BorderPane {
         mNameTextField = new TextField();
         mDescTextField = new TextField();
         mJlinkChooserPane = new FileChooserPane(Dict.SELECT.toString(), "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
-        mOutputChooserPane = new FileChooserPane(Dict.SELECT.toString(), "--output", FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
+        mOutputChooserPane = new FileChooserPane(Dict.SELECT.toString(), "output", FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
 
-        mBindServicesCheckBox = new CheckBox("--bind-services");
+        mBindServicesCheckBox = new CheckBox("bind-services");
         mBindServicesCheckBox.setTooltip(new Tooltip("Link in service provider modules and their dependences"));
-        mIgnoreSigningCheckBox = new CheckBox("--ignore-signing-information");
+        mIgnoreSigningCheckBox = new CheckBox("ignore-signing-information");
         mIgnoreSigningCheckBox.setTooltip(new Tooltip("Suppress a fatal error when signed modular JARs are linked in the image. The signature related files of the signed modular JARs are not copied to the runtime image"));
-        mNoHeadersCheckBox = new CheckBox("--no-header-files");
+        mNoHeadersCheckBox = new CheckBox("no-header-files");
         mNoHeadersCheckBox.setTooltip(new Tooltip("Exclude include header files"));
-        mNoManPagesCheckBox = new CheckBox("--no-man-pages");
+        mNoManPagesCheckBox = new CheckBox("no-man-pages");
         mNoManPagesCheckBox.setTooltip(new Tooltip("Exclude man pages"));
-        mStripDebugCheckBox = new CheckBox("--strip-debug");
+        mStripDebugCheckBox = new CheckBox("strip-debug");
         mStripDebugCheckBox.setTooltip(new Tooltip("Strip debug information"));
 
         mCompressComboBox = new ComboBox();
@@ -158,8 +158,8 @@ public class ProfilePanel extends BorderPane {
 
         var subPane = new GridPane();
         //subPane.setGridLinesVisible(true);
-        subPane.add(new Label("--compress"), 5, 0);
-        subPane.add(new Label("--endian"), 6, 0);
+        subPane.add(new Label("compress"), 5, 0);
+        subPane.add(new Label("endian"), 6, 0);
         subPane.addRow(1, mBindServicesCheckBox, mIgnoreSigningCheckBox, mNoHeadersCheckBox, mNoManPagesCheckBox, mStripDebugCheckBox, mCompressComboBox, mEndianComboBox);
         subPane.setHgap(8);
         subPane.setMaxWidth(Double.MAX_VALUE);

@@ -15,6 +15,7 @@
  */
 package se.trixon.cric;
 
+import java.util.ArrayList;
 import java.util.function.Predicate;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
@@ -24,6 +25,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
@@ -36,6 +38,7 @@ import org.controlsfx.validation.Validator;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.cric.Profile.ModulePath;
 
 /**
  *
@@ -45,19 +48,19 @@ public class ProfilePanel extends BorderPane {
 
     private CheckBox mBindServicesCheckBox;
     private ComboBox mCompressComboBox;
-
     private TextField mDescTextField;
-    private FileChooserPane mOutputChooserPane;
-    private FileChooserPane mJlinkChooserPane;
     private ComboBox mEndianComboBox;
     private CheckBox mIgnoreSigningCheckBox;
+    private FileChooserPane mJlinkChooserPane;
     private TextField mNameTextField;
     private CheckBox mNoHeadersCheckBox;
     private CheckBox mNoManPagesCheckBox;
     private Button mOkButton;
+    private FileChooserPane mOutputChooserPane;
     private final Profile mProfile;
     private final ProfileManager mProfileManager = ProfileManager.getInstance();
     private CheckBox mStripDebugCheckBox;
+    private int mTabCounter = 0;
     private TabPane mTabPane;
 
     public ProfilePanel(Profile p) {
@@ -76,6 +79,7 @@ public class ProfilePanel extends BorderPane {
         mCompressComboBox.getSelectionModel().select(p.getCompress());
         mEndianComboBox.getSelectionModel().select(p.getEndian());
 
+        initTab(p);
         initListeners();
 
         Platform.runLater(() -> {
@@ -96,6 +100,14 @@ public class ProfilePanel extends BorderPane {
         mProfile.setStripDebug(mStripDebugCheckBox.isSelected());
         mProfile.setCompress(mCompressComboBox.getSelectionModel().getSelectedIndex());
         mProfile.setEndian(mEndianComboBox.getSelectionModel().getSelectedIndex());
+
+        ArrayList<ModulePath> modulePaths = new ArrayList<>();
+
+        mTabPane.getTabs().stream().filter(tab -> (tab instanceof JModsTab)).forEachOrdered(tab -> {
+            modulePaths.add(((JModsTab) tab).getModulePath());
+        });
+
+        mProfile.setModulePaths(modulePaths);
     }
 
     void setOkButton(Button button) {
@@ -153,7 +165,7 @@ public class ProfilePanel extends BorderPane {
         subPane.setMaxWidth(Double.MAX_VALUE);
 
         gridPane.add(subPane, 0, ++row, 1, 1);
-        mTabPane = new TabPane(new ModuleSelectionPanel());
+        mTabPane = new TabPane();
 
         var rowInsets = new Insets(8, 0, 0, 0);
         FxHelper.setPadding(rowInsets, mJlinkChooserPane, mOutputChooserPane, subPane, mTabPane);
@@ -171,6 +183,31 @@ public class ProfilePanel extends BorderPane {
     }
 
     private void initListeners() {
+        mTabPane.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
+            if (mTabPane.getSelectionModel().getSelectedIndex() == 0) {
+                Platform.runLater(() -> {
+                    var jModsTab = new JModsTab(mTabCounter++, null);
+                    mTabPane.getTabs().add(jModsTab);
+                    mTabPane.getSelectionModel().select(jModsTab);
+                });
+            }
+        });
+    }
+
+    private void initTab(Profile p) {
+        var plusTab = new Tab("+");
+        plusTab.setClosable(false);
+        mTabPane.getTabs().add(plusTab);
+
+        if (p.getModulePaths().isEmpty()) {
+            mTabPane.getTabs().add(new JModsTab(mTabCounter++, null));
+        } else {
+            for (var modulePath : p.getModulePaths()) {
+                mTabPane.getTabs().add(new JModsTab(mTabCounter++, modulePath));
+            }
+        }
+
+        mTabPane.getSelectionModel().select(1);
     }
 
     private void initValidation() {

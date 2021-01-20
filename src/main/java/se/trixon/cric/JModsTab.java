@@ -29,18 +29,19 @@ import org.controlsfx.control.ListSelectionView;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.cric.Profile.ModulePath;
 
 /**
  *
  * @author Patrik Karlström
  */
-public class ModuleSelectionPanel extends Tab {
+public class JModsTab extends Tab {
 
     private final BorderPane mBorderPane = new BorderPane();
     private final FileChooserPane mFileChooserPane;
     private final ListSelectionView<String> mListSelectionView;
 
-    public ModuleSelectionPanel() {
+    public JModsTab(int tabCounter, ModulePath modulePath) {
         mFileChooserPane = new FileChooserPane(Dict.PATH.toString(), Dict.PATH.toString(), FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
         mListSelectionView = new ListSelectionView<>();
         ((Label) mListSelectionView.getSourceHeader()).setText(Dict.AVAILABLE.toString());
@@ -50,9 +51,23 @@ public class ModuleSelectionPanel extends Tab {
 
         FxHelper.setPadding(FxHelper.getUIScaledInsets(8, 0, 0, 0), mFileChooserPane);
 
+        setClosable(tabCounter > 0);
         setContent(mBorderPane);
-        setText("jmods");
+        setText("jmods #" + tabCounter);
+
+        if (modulePath != null) {
+            load(modulePath);
+        }
+
         initListeners();
+    }
+
+    ModulePath getModulePath() {
+        var modulePath = new ModulePath();
+        modulePath.setDirectory(mFileChooserPane.getPath());
+        modulePath.setSelectedModules(new TreeSet(mListSelectionView.getTargetItems()));
+
+        return modulePath;
     }
 
     private void initListeners() {
@@ -96,20 +111,27 @@ public class ModuleSelectionPanel extends Tab {
             @Override
             public void onFileChooserPreSelect(FileChooserPane chooserPane) {
             }
-
         });
+    }
+
+    private void load(ModulePath modulePath) {
+        mFileChooserPane.setPath(modulePath.getDirectory());
+
+        rescanModuleDirectory(mFileChooserPane.getPath());
+
+        mListSelectionView.getSourceItems().removeAll(modulePath.getSelectedModules());
+        mListSelectionView.getTargetItems().setAll(modulePath.getSelectedModules());
     }
 
     private void rescanModuleDirectory(File dir) {
         mListSelectionView.getSourceItems().clear();
         mListSelectionView.getTargetItems().clear();
+
         try {
             mListSelectionView.getSourceItems().setAll(FileUtils.listFiles(dir, new String[]{"jmod"}, false).stream()
                     .map(f -> FilenameUtils.getBaseName(f.getName()))
                     .collect(Collectors.toCollection(TreeSet::new)));
         } catch (Exception e) {
         }
-
     }
-
 }

@@ -17,7 +17,9 @@ package se.trixon.cric;
 
 import com.google.gson.annotations.SerializedName;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +49,8 @@ public class Profile implements Comparable<Profile>, Cloneable {
     private File mJlink;
     @SerializedName("last_run")
     private long mLastRun;
+    @SerializedName("modulePaths")
+    private ArrayList<ModulePath> mModulePaths;
     @SerializedName("name")
     private String mName;
     @SerializedName("noHeaders")
@@ -101,6 +105,14 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public long getLastRun() {
         return mLastRun;
+    }
+
+    public ArrayList<ModulePath> getModulePaths() {
+        if (mModulePaths == null) {
+            mModulePaths = new ArrayList<>();
+        }
+
+        return mModulePaths;
     }
 
     public String getName() {
@@ -193,6 +205,10 @@ public class Profile implements Comparable<Profile>, Cloneable {
         mLastRun = lastRun;
     }
 
+    public void setModulePaths(ArrayList<ModulePath> modulePaths) {
+        mModulePaths = modulePaths;
+    }
+
     public void setName(String name) {
         mName = name;
     }
@@ -226,4 +242,31 @@ public class Profile implements Comparable<Profile>, Cloneable {
         mValidationErrorBuilder.append(string).append("\n");
     }
 
+    public static class ModulePath {
+
+        @SerializedName("directory")
+        private File mDirectory;
+        @SerializedName("selectedModules")
+        private TreeSet<String> mSelectedModules;
+
+        public ModulePath() {
+        }
+
+        public File getDirectory() {
+            return mDirectory;
+        }
+
+        public TreeSet<String> getSelectedModules() {
+            return mSelectedModules;
+        }
+
+        public void setDirectory(File directory) {
+            mDirectory = directory;
+        }
+
+        public void setSelectedModules(TreeSet<String> selectedModules) {
+            mSelectedModules = selectedModules;
+        }
+
+    }
 }

@@ -156,7 +156,7 @@ public class App extends Application {
         });
 
         accelerators.put(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> {
-            //profileEdit(null);
+            mAppForm.profileEdit(null);
         });
 
         if (!SystemUtils.IS_OS_MAC) {

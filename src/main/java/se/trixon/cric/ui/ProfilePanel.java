@@ -105,8 +105,8 @@ public class ProfilePanel extends BorderPane {
 
         ArrayList<ModulePath> modulePaths = new ArrayList<>();
 
-        mTabPane.getTabs().stream().filter(tab -> (tab instanceof JModsTab)).forEachOrdered(tab -> {
-            modulePaths.add(((JModsTab) tab).getModulePath());
+        mTabPane.getTabs().stream().filter(tab -> (tab instanceof ModulePathTab)).forEachOrdered(tab -> {
+            modulePaths.add(((ModulePathTab) tab).getModulePath());
         });
 
         mProfile.setModulePaths(modulePaths);
@@ -188,9 +188,9 @@ public class ProfilePanel extends BorderPane {
         mTabPane.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
             if (mTabPane.getSelectionModel().getSelectedIndex() == 0) {
                 Platform.runLater(() -> {
-                    var jModsTab = new JModsTab(mTabCounter++, null);
-                    mTabPane.getTabs().add(jModsTab);
-                    mTabPane.getSelectionModel().select(jModsTab);
+                    var modulePathTab = new ModulePathTab(mTabCounter++, null);
+                    mTabPane.getTabs().add(modulePathTab);
+                    mTabPane.getSelectionModel().select(modulePathTab);
                 });
             }
         });
@@ -202,10 +202,10 @@ public class ProfilePanel extends BorderPane {
         mTabPane.getTabs().add(plusTab);
 
         if (p.getModulePaths().isEmpty()) {
-            mTabPane.getTabs().add(new JModsTab(mTabCounter++, null));
+            mTabPane.getTabs().add(new ModulePathTab(mTabCounter++, null));
         } else {
             for (var modulePath : p.getModulePaths()) {
-                mTabPane.getTabs().add(new JModsTab(mTabCounter++, modulePath));
+                mTabPane.getTabs().add(new ModulePathTab(mTabCounter++, modulePath));
             }
         }
 
@@ -220,13 +220,9 @@ public class ProfilePanel extends BorderPane {
             return mProfileManager.isValid(mProfile.getName(), (String) o);
         };
 
-//        Predicate datePredicate = (Predicate) (Object o) -> {
-//            return !StringUtils.isBlank((String) o) && previewDateFormat();
-//        };
         var validationSupport = new ValidationSupport();
         validationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createEmptyValidator(text_is_required));
         validationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createPredicateValidator(namePredicate, text_is_required));
-        validationSupport.registerValidator(mDescTextField, indicateRequired, Validator.createEmptyValidator(text_is_required));
 
         validationSupport.validationResultProperty().addListener((ObservableValue<? extends ValidationResult> observable, ValidationResult oldValue, ValidationResult newValue) -> {
             if (mOkButton != null) {

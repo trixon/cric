@@ -35,13 +35,13 @@ import se.trixon.cric.Profile.ModulePath;
  *
  * @author Patrik Karlström
  */
-public class JModsTab extends Tab {
+public class ModulePathTab extends Tab {
 
     private final BorderPane mBorderPane = new BorderPane();
     private final FileChooserPane mFileChooserPane;
     private final ListSelectionView<String> mListSelectionView;
 
-    public JModsTab(int tabCounter, ModulePath modulePath) {
+    public ModulePathTab(int tabCounter, ModulePath modulePath) {
         mFileChooserPane = new FileChooserPane(Dict.PATH.toString(), Dict.PATH.toString(), FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
         mListSelectionView = new ListSelectionView<>();
         ((Label) mListSelectionView.getSourceHeader()).setText(Dict.AVAILABLE.toString());

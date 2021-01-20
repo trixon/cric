@@ -65,6 +65,7 @@ public class AppForm extends BorderPane {
     private final ProfileManager mProfileManager = ProfileManager.getInstance();
     private ArrayList<Profile> mProfiles;
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
+    private final StatusPanel mStatusPanel = new StatusPanel();
 
     public AppForm() {
         createUI();
@@ -130,7 +131,7 @@ public class AppForm extends BorderPane {
         mListView.setPlaceholder(welcomeLabel);
 
         setLeft(mListView);
-        setCenter(new Label("y"));
+        setCenter(mStatusPanel);
     }
 
     private Stage getStage() {

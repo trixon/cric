@@ -15,6 +15,8 @@
  */
 package se.trixon.cric;
 
+import se.trixon.cric.ui.AppForm;
+import se.trixon.cric.ui.OptionsPanel;
 import de.jangassen.MenuToolkit;
 import java.util.Arrays;
 import javafx.application.Application;

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright 2021 Patrik Karlström.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.trixon.cric;
+package se.trixon.cric.ui;
 
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
 import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.cric.Options;
 import static se.trixon.cric.Options.*;
 
 /**
@@ -26,19 +27,18 @@ import static se.trixon.cric.Options.*;
  */
 public class OptionsPanel extends VBox {
 
-    private final Options mOptions = Options.getInstance();
-
     private FileChooserPane mJLinkFileChooserPane;
+    private final Options mOptions = Options.getInstance();
 
     public OptionsPanel() {
         createUI();
     }
 
-    void load() {
+    public void load() {
         mJLinkFileChooserPane.setPath(mOptions.get(KEY_JLINK, "/path/to/jlink"));
     }
 
-    void save() {
+    public void save() {
         mOptions.put(KEY_JLINK, mJLinkFileChooserPane.getPathAsString());
     }
 

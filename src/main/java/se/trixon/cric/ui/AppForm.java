@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.trixon.cric;
+package se.trixon.cric.ui;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -50,6 +50,10 @@ import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.SystemHelper;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.icons.material.MaterialIcon;
+import se.trixon.cric.Profile;
+import se.trixon.cric.ProfileManager;
+import se.trixon.cric.RunState;
+import se.trixon.cric.RunStateManager;
 
 /**
  *
@@ -73,7 +77,7 @@ public class AppForm extends BorderPane {
         mListView.requestFocus();
     }
 
-    void profileEdit(Profile profile) {
+    public void profileEdit(Profile profile) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initOwner(getStage());
         alert.setResizable(true);

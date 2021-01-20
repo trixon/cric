@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.trixon.cric;
+package se.trixon.cric.ui;
 
 import java.util.ArrayList;
 import java.util.function.Predicate;
@@ -38,7 +38,9 @@ import org.controlsfx.validation.Validator;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.cric.Profile;
 import se.trixon.cric.Profile.ModulePath;
+import se.trixon.cric.ProfileManager;
 
 /**
  *

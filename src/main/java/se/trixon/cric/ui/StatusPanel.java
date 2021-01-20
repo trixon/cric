@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package se.trixon.cric;
+package se.trixon.cric.ui;
 
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -27,6 +27,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.control.LogPanel;
+import se.trixon.cric.Options;
+import se.trixon.cric.RunStateManager;
 
 /**
  *

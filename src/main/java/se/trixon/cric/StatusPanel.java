@@ -19,6 +19,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
@@ -76,10 +77,11 @@ public class StatusPanel extends BorderPane {
         mTabPane.getTabs().addAll(mOutTab);
         mTabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
         mTabPane.setSide(Side.BOTTOM);
-
+        var scrollPane = new ScrollPane(mSummaryDetails);
+        scrollPane.setPrefHeight(300);
         var box = new VBox(
                 mSummaryHeader,
-                mSummaryDetails,
+                scrollPane,
                 mProgressBar
         );
 

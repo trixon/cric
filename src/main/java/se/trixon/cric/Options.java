@@ -16,6 +16,11 @@
 package se.trixon.cric;
 
 import java.util.prefs.Preferences;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ChangeListener;
 import se.trixon.almond.util.OptionsBase;
 
 /**
@@ -24,7 +29,10 @@ import se.trixon.almond.util.OptionsBase;
  */
 public class Options extends OptionsBase {
 
-    public static final String KEY_JLINK = "path.jlink";
+    private static final String KEY_JLINK = "path.jlink";
+    private static final String KEY_NIGHTMODE = "nightmode";
+    private final StringProperty mJlinkProperty = new SimpleStringProperty();
+    private final BooleanProperty mNightModeProperty = new SimpleBooleanProperty();
 
     public static Options getInstance() {
         return OptionsHolder.INSTANCE;
@@ -32,6 +40,48 @@ public class Options extends OptionsBase {
 
     private Options() {
         setPreferences(Preferences.userNodeForPackage(App.class));
+        mNightModeProperty.set(is(KEY_NIGHTMODE, true));
+        jlinkProperty().set(get(KEY_JLINK, "/path/to/jlink"));
+
+        initListeners();
+    }
+
+    public String getJlink() {
+        return mJlinkProperty.get();
+    }
+
+    public boolean isNightMode() {
+        return mNightModeProperty.get();
+    }
+
+    public StringProperty jlinkProperty() {
+        return mJlinkProperty;
+    }
+
+    public BooleanProperty nightModeProperty() {
+        return mNightModeProperty;
+    }
+
+    public void setJlinkProperty(String jlink) {
+        mJlinkProperty.set(jlink);
+    }
+
+    public void setNightMode(boolean nightMode) {
+        mNightModeProperty.set(nightMode);
+    }
+
+    private void initListeners() {
+        ChangeListener<Object> changeListener = (observable, oldValue, newValue) -> {
+            save();
+        };
+
+        mJlinkProperty.addListener(changeListener);
+        mNightModeProperty.addListener(changeListener);
+    }
+
+    private void save() {
+        put(KEY_NIGHTMODE, isNightMode());
+        put(KEY_JLINK, getJlink());
     }
 
     private static class OptionsHolder {

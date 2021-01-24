@@ -81,6 +81,73 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return mName.compareTo(o.getName());
     }
 
+    public ArrayList<String> getCommand() {
+        ArrayList<String> command = new ArrayList<>();
+        command.add(getJlink().getPath());
+
+        if (mBindServices) {
+            command.add("--bind-services");
+        }
+
+        if (mIgnoreSigning) {
+            command.add("--ignore-signing-information");
+        }
+
+        if (mNoHeaders) {
+            command.add("--no-header-files");
+        }
+
+        if (mNoManPages) {
+            command.add("--no-man-pages");
+        }
+
+        if (mStripDebug) {
+            command.add("--strip-debug");
+        }
+
+        command.add(String.format("--compress=%d", mCompress));
+
+        if (mEndian > 0) {
+            command.add(String.format("--endian %s", new String[]{"", "little", "big"}[mEndian]));
+        }
+
+        command.add("--module-path");
+//        StringBuilder sb1 = new StringBuilder();
+//        sb1.append(mOptions.getJdkDir(target).getAbsolutePath());
+//        File jfx = mOptions.getJfxDir(target);
+//        if (jfx.isDirectory()) {
+//            sb1.append(File.pathSeparator).append(jfx.getAbsolutePath());
+//        }
+//
+//        for (String path : customModulePathTextArea.getText().split("\\r?\\n")) {
+//            if (new File(path).isDirectory()) {
+//                sb1.append(File.pathSeparator).append(path);
+//            }
+//        }
+//        command.add(sb1.toString());
+//
+//        command.add("--add-modules");
+//
+//        StringBuilder sb2 = new StringBuilder();
+//        for (String module : jmodsList.getSelectedValuesList()) {
+//            sb2.append(module).append(",");
+//        }
+//        for (String module : customModulesTextArea.getText().split("\\r?\\n")) {
+//            if (StringUtils.isNoneBlank(module)) {
+//                sb2.append(module).append(",");
+//            }
+//        }
+//        if (sb2.toString().endsWith(",")) {
+//            sb2.deleteCharAt(sb2.length() - 1);
+//        }
+//        command.add(sb2.toString());
+
+        command.add("--output");
+        command.add(mOutput.getPath());
+
+        return command;
+    }
+
     public int getCompress() {
         return mCompress;
     }
@@ -153,7 +220,7 @@ public class Profile implements Comparable<Profile>, Cloneable {
         mValidationErrorBuilder = new StringBuilder();
 
         if (mOutput == null || !mOutput.isDirectory()) {
-            addValidationError(String.format(mBundle.getString("invalid_dest_dir"), mOutput));
+            addValidationError(String.format("Invalid output directory", mOutput));
         }
 
         return mValidationErrorBuilder.length() == 0;

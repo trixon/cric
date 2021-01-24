@@ -15,11 +15,14 @@
  */
 package se.trixon.cric.ui;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.layout.VBox;
+import org.controlsfx.control.ToggleSwitch;
+import se.trixon.almond.util.Dict;
+import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.FileChooserPane;
 import se.trixon.cric.Options;
-import static se.trixon.cric.Options.*;
 
 /**
  *
@@ -29,24 +32,24 @@ public class OptionsPanel extends VBox {
 
     private FileChooserPane mJLinkFileChooserPane;
     private final Options mOptions = Options.getInstance();
+    private ToggleSwitch mNightModeToggleSwitch;
 
     public OptionsPanel() {
         createUI();
     }
 
-    public void load() {
-        mJLinkFileChooserPane.setPath(mOptions.get(KEY_JLINK, "/path/to/jlink"));
-    }
-
-    public void save() {
-        mOptions.put(KEY_JLINK, mJLinkFileChooserPane.getPathAsString());
-    }
-
     private void createUI() {
+        mNightModeToggleSwitch = new ToggleSwitch(Dict.NIGHT_MODE.toString());
         mJLinkFileChooserPane = new FileChooserPane("jlink", "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
         getChildren().setAll(
+                mNightModeToggleSwitch,
                 mJLinkFileChooserPane
         );
+
+        FxHelper.setPadding(new Insets(8, 0, 0, 0), mJLinkFileChooserPane);
+
+        mNightModeToggleSwitch.selectedProperty().bindBidirectional(mOptions.nightModeProperty());
+        mJLinkFileChooserPane.getTextField().textProperty().bindBidirectional(mOptions.jlinkProperty());
 
         setPrefSize(480, 360);
     }

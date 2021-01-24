@@ -15,13 +15,12 @@
  */
 package se.trixon.cric;
 
-import se.trixon.cric.ui.AppForm;
-import se.trixon.cric.ui.OptionsPanel;
 import de.jangassen.MenuToolkit;
 import java.util.Arrays;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
@@ -30,6 +29,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.lang3.SystemUtils;
@@ -44,6 +44,8 @@ import se.trixon.almond.util.fx.AlmondFx;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.dialogs.about.AboutPane;
 import se.trixon.almond.util.icons.material.MaterialIcon;
+import se.trixon.cric.ui.AppForm;
+import se.trixon.cric.ui.OptionsPanel;
 
 /**
  * JavaFX App
@@ -53,9 +55,11 @@ public class App extends Application {
     public static final String APP_TITLE = "CRIC";
     private static final int ICON_SIZE_TOOLBAR = 32;
     private Action mAboutAction;
-
+    private Action mAddAction;
     private final AlmondFx mAlmondFX = AlmondFx.getInstance();
     private AppForm mAppForm;
+    private Action mHelpAction;
+    private final Options mOptions = Options.getInstance();
     private Action mOptionsAction;
     private BorderPane mRoot;
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
@@ -74,45 +78,44 @@ public class App extends Application {
         if (SystemUtils.IS_OS_MAC) {
             initMac();
         }
+
+        updateNightMode();
         mStage.setTitle(APP_TITLE);
         mStage.show();
 
         initAccelerators();
+        initListeners();
     }
 
     private void createUI() {
-        var addAction = new Action(Dict.ADD.toString(), actionEvent -> {
+        mAddAction = new Action(Dict.ADD.toString(), actionEvent -> {
             mAppForm.profileEdit(null);
         });
-        addAction.setGraphic(MaterialIcon._Content.ADD.getImageView(ICON_SIZE_TOOLBAR));
-        FxHelper.setTooltip(addAction, new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
-        addAction.disabledProperty().bind(mRunStateManager.runningProperty());
+        FxHelper.setTooltip(mAddAction, new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
+        mAddAction.disabledProperty().bind(mRunStateManager.runningProperty());
 
         mOptionsAction = new Action(Dict.OPTIONS.toString(), actionEvent -> {
             displayOptions();
         });
-        mOptionsAction.setGraphic(MaterialIcon._Action.SETTINGS.getImageView(ICON_SIZE_TOOLBAR));
         FxHelper.setTooltip(mOptionsAction, new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
 
-        var helpAction = new Action(Dict.HELP.toString(), actionEvent -> {
+        mHelpAction = new Action(Dict.HELP.toString(), actionEvent -> {
             displayHelp();
         });
-        helpAction.setGraphic(MaterialIcon._Action.HELP_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));
-        FxHelper.setTooltip(helpAction, new KeyCodeCombination(KeyCode.F1, KeyCombination.SHORTCUT_ANY));
+        FxHelper.setTooltip(mHelpAction, new KeyCodeCombination(KeyCode.F1, KeyCombination.SHORTCUT_ANY));
 
         //about
         PomInfo pomInfo = new PomInfo(App.class, "se.trixon", "cric");
         AboutModel aboutModel = new AboutModel(SystemHelper.getBundle(App.class, "about"), SystemHelperFx.getResourceAsImageView(App.class, "about_logo.png"));
         aboutModel.setAppVersion(pomInfo.getVersion());
         mAboutAction = AboutPane.getAction(mStage, aboutModel);
-        mAboutAction.setGraphic(MaterialIcon._Action.INFO_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));
 
         var actions = Arrays.asList(
-                addAction,
+                mAddAction,
                 mOptionsAction,
                 ActionUtils.ACTION_SPAN,
                 mAboutAction,
-                helpAction
+                mHelpAction
         );
 
         ToolBar toolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.SHOW);
@@ -132,7 +135,7 @@ public class App extends Application {
     }
 
     private void displayOptions() {
-        var alert = new Alert(Alert.AlertType.CONFIRMATION);
+        var alert = new Alert(Alert.AlertType.INFORMATION);
         alert.initOwner(mStage);
         alert.setTitle(Dict.OPTIONS.toString());
         alert.setGraphic(null);
@@ -140,14 +143,13 @@ public class App extends Application {
         alert.setResizable(true);
 
         var optionsPanel = new OptionsPanel();
-        optionsPanel.load();
         var dialogPane = alert.getDialogPane();
         dialogPane.setContent(optionsPanel);
+        var button = (Button) dialogPane.lookupButton(ButtonType.OK);
+        button.setText(Dict.CLOSE.toString());
+        dialogPane.setPrefSize(400, 200);
 
-        var result = FxHelper.showAndWait(alert, mStage);
-        if (result.get() == ButtonType.OK) {
-            optionsPanel.save();
-        }
+        FxHelper.showAndWait(alert, mStage);
     }
 
     private void initAccelerators() {
@@ -172,6 +174,12 @@ public class App extends Application {
         }
     }
 
+    private void initListeners() {
+        mOptions.nightModeProperty().addListener((observable, oldValue, newValue) -> {
+            updateNightMode();
+        });
+    }
+
     private void initMac() {
         var menuToolkit = MenuToolkit.toolkit();
         var applicationMenu = menuToolkit.createDefaultApplicationMenu(APP_TITLE);
@@ -190,6 +198,22 @@ public class App extends Application {
 
         int cnt = applicationMenu.getItems().size();
         applicationMenu.getItems().get(cnt - 1).setText(String.format("%s %s", Dict.QUIT.toString(), APP_TITLE));
+    }
+
+    private void updateNightMode() {
+        MaterialIcon.setDefaultColor(mOptions.isNightMode() ? Color.LIGHTGRAY : Color.BLACK);
+
+        mAddAction.setGraphic(MaterialIcon._Content.ADD.getImageView(ICON_SIZE_TOOLBAR));
+        mOptionsAction.setGraphic(MaterialIcon._Action.SETTINGS.getImageView(ICON_SIZE_TOOLBAR));
+        mAboutAction.setGraphic(MaterialIcon._Action.INFO_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));
+        mHelpAction.setGraphic(MaterialIcon._Action.HELP_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));
+
+        FxHelper.setDarkThemeEnabled(mOptions.isNightMode());
+        if (mOptions.isNightMode()) {
+            FxHelper.loadDarkTheme(mStage.getScene());
+        } else {
+            FxHelper.unloadDarkTheme(mStage.getScene());
+        }
     }
 
 }

@@ -28,6 +28,7 @@ import javafx.scene.layout.VBox;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.control.LogPanel;
 import se.trixon.cric.Options;
+import se.trixon.cric.Profile;
 import se.trixon.cric.RunStateManager;
 
 /**
@@ -41,6 +42,7 @@ public class StatusPanel extends BorderPane {
     private final LogPanel mLogOutPanel = new LogPanel();
     private final Options mOptions = Options.getInstance();
     private final Tab mOutTab = new Tab(Dict.OUTPUT.toString());
+    private Profile mProfile;
     private final ProgressBar mProgressBar = new ProgressBar();
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
     private final SummaryDetails mSummaryDetails = new SummaryDetails();
@@ -107,7 +109,13 @@ public class StatusPanel extends BorderPane {
             }
         });
 
+        mOptions.nightModeProperty().addListener((observable, oldValue, newValue) -> {
+            mSummaryHeader.load(mProfile);
+            mSummaryDetails.load(mProfile);
+        });
+
         mRunStateManager.profileProperty().addListener((observable, oldValue, newValue) -> {
+            mProfile = newValue;
             mSummaryHeader.load(newValue);
             mSummaryDetails.load(newValue);
         });

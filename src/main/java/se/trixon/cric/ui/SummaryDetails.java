@@ -22,6 +22,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import se.trixon.cric.Options;
 import se.trixon.cric.Profile;
 
 /**
@@ -32,7 +33,8 @@ public class SummaryDetails extends TextFlow {
 
     private final Text mJLink = new Text();
     private final Text mJLinkHeader = new Text("\n\njlink\n");
-    private final Text mOptions = new Text();
+    private final Options mOptions = Options.getInstance();
+    private final Text mOptionsBallots = new Text();
     private final Text mOutput = new Text();
     private final Text mOutputHeader = new Text("\noutput\n");
 
@@ -59,12 +61,12 @@ public class SummaryDetails extends TextFlow {
         sb.append(getBallotBox(profile.isNoManPages())).append("no-man-pages").append(", ");
         sb.append(getBallotBox(profile.isStripDebug())).append("strip-debug");
 
-        mOptions.setText(sb.toString());
+        mOptionsBallots.setText(sb.toString());
         mJLink.setText(profile.getJlink().getPath());
         mOutput.setText(profile.getOutput().getPath());
 
         getChildren().setAll(
-                mOptions,
+                mOptionsBallots,
                 mJLinkHeader,
                 mJLink,
                 mOutputHeader,
@@ -75,10 +77,16 @@ public class SummaryDetails extends TextFlow {
         headerTexts.add(mJLinkHeader);
         headerTexts.add(mOutputHeader);
 
+        HashSet<Text> bodyTexts = new HashSet<>();
+        bodyTexts.add(mOptionsBallots);
+        bodyTexts.add(mJLink);
+        bodyTexts.add(mOutput);
+
         for (var modulePath : profile.getModulePaths()) {
             Text path = new Text("\n" + modulePath.getDirectory().getPath());
             headerTexts.add(path);
             Text modules = new Text("\n" + String.join(", ", modulePath.getSelectedModules()));
+            bodyTexts.add(modules);
 
             getChildren().addAll(path, modules);
         }
@@ -92,9 +100,13 @@ public class SummaryDetails extends TextFlow {
 
         var headerFont = Font.font(defaultFont.getName(), FontWeight.EXTRA_BOLD, fontSize);
 
-        for (Text text : headerTexts) {
+        for (var text : headerTexts) {
             text.setFill(Color.RED);
             text.setFont(headerFont);
+        }
+
+        for (var text : bodyTexts) {
+            text.setFill(mOptions.isNightMode() ? Color.web("#ebebeb") : Color.BLACK);
         }
     }
 

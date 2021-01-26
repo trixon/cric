@@ -81,6 +81,9 @@ public class App extends Application {
 
         updateNightMode();
         mStage.setTitle(APP_TITLE);
+        if (mOptions.isNightMode()) {
+            mStage.getScene().setFill(Color.web("#3c3f41"));
+        }
         mStage.show();
 
         initAccelerators();

@@ -95,18 +95,14 @@ public class StatusPanel extends BorderPane {
         setTop(box);
         setCenter(mTabPane);
 
-//        mLogOutPanel.setWrapText(mOptions.isWordWrap());
-//        mLogErrPanel.setWrapText(mOptions.isWordWrap());
+        mLogOutPanel.setWrapText(mOptions.isWordWrap());
+        mLogErrPanel.setWrapText(mOptions.isWordWrap());
     }
 
     private void initListeners() {
-        mOptions.getPreferences().addPreferenceChangeListener(pce -> {
-            switch (pce.getKey()) {
-//                case Options.KEY_WORD_WRAP:
-//                    mLogOutPanel.setWrapText(mOptions.isWordWrap());
-//                    mLogErrPanel.setWrapText(mOptions.isWordWrap());
-//                    break;
-            }
+        mOptions.wordWrapProperty().addListener((observable, oldValue, newValue) -> {
+            mLogOutPanel.setWrapText(mOptions.isWordWrap());
+            mLogErrPanel.setWrapText(mOptions.isWordWrap());
         });
 
         mOptions.nightModeProperty().addListener((observable, oldValue, newValue) -> {

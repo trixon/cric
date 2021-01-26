@@ -33,6 +33,7 @@ public class Options extends OptionsBase {
     private static final String KEY_NIGHTMODE = "nightmode";
     private final StringProperty mJlinkProperty = new SimpleStringProperty();
     private final BooleanProperty mNightModeProperty = new SimpleBooleanProperty();
+    private final BooleanProperty mWordWrapProperty = new SimpleBooleanProperty(true);
 
     public static Options getInstance() {
         return OptionsHolder.INSTANCE;
@@ -54,6 +55,10 @@ public class Options extends OptionsBase {
         return mNightModeProperty.get();
     }
 
+    public boolean isWordWrap() {
+        return mWordWrapProperty.get();
+    }
+
     public StringProperty jlinkProperty() {
         return mJlinkProperty;
     }
@@ -68,6 +73,10 @@ public class Options extends OptionsBase {
 
     public void setNightMode(boolean nightMode) {
         mNightModeProperty.set(nightMode);
+    }
+
+    public BooleanProperty wordWrapProperty() {
+        return mWordWrapProperty;
     }
 
     private void initListeners() {

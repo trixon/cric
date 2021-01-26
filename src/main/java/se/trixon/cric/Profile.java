@@ -83,7 +83,7 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public ArrayList<String> getCommand() {
         ArrayList<String> command = new ArrayList<>();
-        command.add(getJlink().getPath());
+        command.add(getJlinkString());
 
         if (mBindServices) {
             command.add("--bind-services");
@@ -111,36 +111,18 @@ public class Profile implements Comparable<Profile>, Cloneable {
             command.add(String.format("--endian %s", new String[]{"", "little", "big"}[mEndian]));
         }
 
+        ArrayList<String> paths = new ArrayList<>();
+        ArrayList<String> modules = new ArrayList<>();
+        for (var modulePath : mModulePaths) {
+            paths.add(modulePath.mDirectory.getPath());
+            modules.addAll(modulePath.getSelectedModules());
+        }
+
         command.add("--module-path");
-//        StringBuilder sb1 = new StringBuilder();
-//        sb1.append(mOptions.getJdkDir(target).getAbsolutePath());
-//        File jfx = mOptions.getJfxDir(target);
-//        if (jfx.isDirectory()) {
-//            sb1.append(File.pathSeparator).append(jfx.getAbsolutePath());
-//        }
-//
-//        for (String path : customModulePathTextArea.getText().split("\\r?\\n")) {
-//            if (new File(path).isDirectory()) {
-//                sb1.append(File.pathSeparator).append(path);
-//            }
-//        }
-//        command.add(sb1.toString());
-//
-//        command.add("--add-modules");
-//
-//        StringBuilder sb2 = new StringBuilder();
-//        for (String module : jmodsList.getSelectedValuesList()) {
-//            sb2.append(module).append(",");
-//        }
-//        for (String module : customModulesTextArea.getText().split("\\r?\\n")) {
-//            if (StringUtils.isNoneBlank(module)) {
-//                sb2.append(module).append(",");
-//            }
-//        }
-//        if (sb2.toString().endsWith(",")) {
-//            sb2.deleteCharAt(sb2.length() - 1);
-//        }
-//        command.add(sb2.toString());
+        command.add(String.join(File.pathSeparator, paths));
+
+        command.add("--add-modules");
+        command.add(String.join(",", modules));
 
         command.add("--output");
         command.add(mOutput.getPath());
@@ -166,6 +148,10 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public File getJlink() {
         return mJlink;
+    }
+
+    public String getJlinkString() {
+        return StringUtils.defaultIfBlank(getJlink().getPath(), Options.getInstance().getJlink());
     }
 
     public long getLastRun() {

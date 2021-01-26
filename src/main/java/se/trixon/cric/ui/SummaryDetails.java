@@ -62,7 +62,7 @@ public class SummaryDetails extends TextFlow {
         sb.append(getBallotBox(profile.isStripDebug())).append("strip-debug");
 
         mOptionsBallots.setText(sb.toString());
-        mJLink.setText(profile.getJlink().getPath());
+        mJLink.setText(profile.getJlinkString());
         mOutput.setText(profile.getOutput().getPath());
 
         getChildren().setAll(

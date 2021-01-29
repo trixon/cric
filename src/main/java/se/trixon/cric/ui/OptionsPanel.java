@@ -30,9 +30,11 @@ import se.trixon.cric.Options;
  */
 public class OptionsPanel extends VBox {
 
+    private ToggleSwitch mDebugToggleSwitch;
     private FileChooserPane mJLinkFileChooserPane;
-    private final Options mOptions = Options.getInstance();
     private ToggleSwitch mNightModeToggleSwitch;
+    private final Options mOptions = Options.getInstance();
+    private ToggleSwitch mVerboseSwitch;
     private ToggleSwitch mWordWrapToggleSwitch;
 
     public OptionsPanel() {
@@ -43,21 +45,34 @@ public class OptionsPanel extends VBox {
         mJLinkFileChooserPane = new FileChooserPane("jlink", "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
         mNightModeToggleSwitch = new ToggleSwitch(Dict.NIGHT_MODE.toString());
         mWordWrapToggleSwitch = new ToggleSwitch(Dict.DYNAMIC_WORD_WRAP.toString());
+        mDebugToggleSwitch = new ToggleSwitch("jlink debug");
+        mVerboseSwitch = new ToggleSwitch("jlink verbose");
 
         mNightModeToggleSwitch.prefWidthProperty().bind(mJLinkFileChooserPane.widthProperty());
         mWordWrapToggleSwitch.prefWidthProperty().bind(mJLinkFileChooserPane.widthProperty());
+        mDebugToggleSwitch.prefWidthProperty().bind(mJLinkFileChooserPane.widthProperty());
+        mVerboseSwitch.prefWidthProperty().bind(mJLinkFileChooserPane.widthProperty());
 
         getChildren().setAll(
                 mJLinkFileChooserPane,
+                mDebugToggleSwitch,
+                mVerboseSwitch,
                 mNightModeToggleSwitch,
                 mWordWrapToggleSwitch
         );
 
-        FxHelper.setPadding(new Insets(8, 0, 0, 0), mNightModeToggleSwitch, mWordWrapToggleSwitch);
+        FxHelper.setPadding(new Insets(8, 0, 0, 0),
+                mNightModeToggleSwitch,
+                mWordWrapToggleSwitch,
+                mDebugToggleSwitch,
+                mVerboseSwitch
+        );
 
+        mVerboseSwitch.selectedProperty().bindBidirectional(mOptions.jlinkVerboseProperty());
+        mDebugToggleSwitch.selectedProperty().bindBidirectional(mOptions.jlinkDebugProperty());
         mNightModeToggleSwitch.selectedProperty().bindBidirectional(mOptions.nightModeProperty());
         mWordWrapToggleSwitch.selectedProperty().bindBidirectional(mOptions.wordWrapProperty());
-        mJLinkFileChooserPane.getTextField().textProperty().bindBidirectional(mOptions.jlinkProperty());
+        mJLinkFileChooserPane.getTextField().textProperty().bindBidirectional(mOptions.jlinkPathProperty());
 
         setPrefSize(480, 360);
     }

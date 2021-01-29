@@ -29,6 +29,7 @@ import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.control.LogPanel;
 import se.trixon.cric.Options;
 import se.trixon.cric.Profile;
+import se.trixon.cric.RunState;
 import se.trixon.cric.RunStateManager;
 
 /**
@@ -114,6 +115,10 @@ public class StatusPanel extends BorderPane {
             mProfile = newValue;
             mSummaryHeader.load(newValue);
             mSummaryDetails.load(newValue);
+        });
+
+        mRunStateManager.runStateProperty().addListener((observable, oldValue, newValue) -> {
+            setProgress(newValue == RunState.CANCELABLE ? -1 : 1);
         });
     }
 }

@@ -55,6 +55,7 @@ public class ProfilePanel extends BorderPane {
     private CheckBox mIgnoreSigningCheckBox;
     private FileChooserPane mJlinkChooserPane;
     private TextField mNameTextField;
+    private TextField mLauncherTextField;
     private CheckBox mNoHeadersCheckBox;
     private CheckBox mNoManPagesCheckBox;
     private Button mOkButton;
@@ -71,6 +72,7 @@ public class ProfilePanel extends BorderPane {
 
         mNameTextField.setText(p.getName());
         mDescTextField.setText(p.getDescription());
+        mLauncherTextField.setText(p.getLauncher());
         mJlinkChooserPane.setPath(p.getJlink());
         mOutputChooserPane.setPath(p.getOutput());
         mBindServicesCheckBox.setSelected(p.isBindServices());
@@ -93,6 +95,7 @@ public class ProfilePanel extends BorderPane {
     public void save() {
         mProfile.setName(mNameTextField.getText().trim());
         mProfile.setDescription(mDescTextField.getText());
+        mProfile.setLauncher(mLauncherTextField.getText());
         mProfile.setJlink(mJlinkChooserPane.getPath());
         mProfile.setOutput(mOutputChooserPane.getPath());
         mProfile.setBindServices(mBindServicesCheckBox.isSelected());
@@ -125,11 +128,15 @@ public class ProfilePanel extends BorderPane {
 
         var nameLabel = new Label(Dict.NAME.toString());
         var descLabel = new Label(Dict.DESCRIPTION.toString());
+        var launcherLabel = new Label("launcher");
 
         mNameTextField = new TextField();
         mDescTextField = new TextField();
         mJlinkChooserPane = new FileChooserPane(Dict.SELECT.toString(), "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
         mOutputChooserPane = new FileChooserPane(Dict.SELECT.toString(), "output", FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
+
+        mLauncherTextField = new TextField();
+        mLauncherTextField.setPromptText("<name>=<module>[/<mainclass>]");
 
         mBindServicesCheckBox = new CheckBox("bind-services");
         mBindServicesCheckBox.setTooltip(new Tooltip("Link in service provider modules and their dependences"));
@@ -155,6 +162,8 @@ public class ProfilePanel extends BorderPane {
         headerGridPane.add(mDescTextField, 1, row, 1, 1);
         headerGridPane.add(mJlinkChooserPane, 0, ++row, 1, 1);
         headerGridPane.add(mOutputChooserPane, 1, row, 1, 1);
+        headerGridPane.add(launcherLabel, 0, ++row, GridPane.REMAINING, 1);
+        headerGridPane.add(mLauncherTextField, 0, ++row, GridPane.REMAINING, 1);
 
         gridPane.add(headerGridPane, 0, row = 0, GridPane.REMAINING, 1);
 
@@ -170,7 +179,13 @@ public class ProfilePanel extends BorderPane {
         mTabPane = new TabPane();
 
         var rowInsets = new Insets(8, 0, 0, 0);
-        FxHelper.setPadding(rowInsets, mJlinkChooserPane, mOutputChooserPane, subPane, mTabPane);
+        FxHelper.setPadding(rowInsets,
+                mJlinkChooserPane,
+                mOutputChooserPane,
+                launcherLabel,
+                subPane,
+                mTabPane
+        );
 
         GridPane.setHgrow(mNameTextField, Priority.ALWAYS);
         GridPane.setHgrow(mDescTextField, Priority.ALWAYS);

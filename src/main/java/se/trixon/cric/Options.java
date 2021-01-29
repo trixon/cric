@@ -29,11 +29,16 @@ import se.trixon.almond.util.OptionsBase;
  */
 public class Options extends OptionsBase {
 
-    private static final String KEY_JLINK = "path.jlink";
-    private static final String KEY_NIGHTMODE = "nightmode";
-    private final StringProperty mJlinkProperty = new SimpleStringProperty();
+    private static final String KEY_JLINK_DEBUG = "jlink.debug";
+    private static final String KEY_JLINK_PATH = "jlink.path";
+    private static final String KEY_JLINK_VERBOSE = "jlink.verbose";
+    private static final String KEY_UI_NIGHTMODE = "ui.nightmode";
+    private static final String KEY_UI_WORDWRAP = "ui.wordwrap";
+    private final BooleanProperty mJlinkDebugProperty = new SimpleBooleanProperty();
+    private final StringProperty mJlinkPathProperty = new SimpleStringProperty();
+    private final BooleanProperty mJlinkVerboseProperty = new SimpleBooleanProperty();
     private final BooleanProperty mNightModeProperty = new SimpleBooleanProperty();
-    private final BooleanProperty mWordWrapProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty mWordWrapProperty = new SimpleBooleanProperty();
 
     public static Options getInstance() {
         return OptionsHolder.INSTANCE;
@@ -41,14 +46,27 @@ public class Options extends OptionsBase {
 
     private Options() {
         setPreferences(Preferences.userNodeForPackage(App.class));
-        mNightModeProperty.set(is(KEY_NIGHTMODE, true));
-        jlinkProperty().set(get(KEY_JLINK, "/path/to/jlink"));
+
+        mJlinkPathProperty.set(get(KEY_JLINK_PATH, "/path/to/jlink"));
+        mJlinkDebugProperty.set(is(KEY_JLINK_DEBUG, false));
+        mJlinkVerboseProperty.set(is(KEY_JLINK_VERBOSE, true));
+
+        mNightModeProperty.set(is(KEY_UI_NIGHTMODE, true));
+        mWordWrapProperty.set(is(KEY_UI_WORDWRAP, true));
 
         initListeners();
     }
 
-    public String getJlink() {
-        return mJlinkProperty.get();
+    public String getJlinkPath() {
+        return mJlinkPathProperty.get();
+    }
+
+    public boolean isJlinkDebug() {
+        return mJlinkDebugProperty.get();
+    }
+
+    public boolean isJlinkVerbose() {
+        return mJlinkVerboseProperty.get();
     }
 
     public boolean isNightMode() {
@@ -59,16 +77,32 @@ public class Options extends OptionsBase {
         return mWordWrapProperty.get();
     }
 
-    public StringProperty jlinkProperty() {
-        return mJlinkProperty;
+    public BooleanProperty jlinkDebugProperty() {
+        return mJlinkDebugProperty;
+    }
+
+    public StringProperty jlinkPathProperty() {
+        return mJlinkPathProperty;
+    }
+
+    public BooleanProperty jlinkVerboseProperty() {
+        return mJlinkVerboseProperty;
     }
 
     public BooleanProperty nightModeProperty() {
         return mNightModeProperty;
     }
 
-    public void setJlinkProperty(String jlink) {
-        mJlinkProperty.set(jlink);
+    public void setJlinkDebug(boolean debug) {
+        mJlinkDebugProperty.set(debug);
+    }
+
+    public void setJlinkPath(String jlink) {
+        mJlinkPathProperty.set(jlink);
+    }
+
+    public void setJlinkVerbose(boolean debug) {
+        mJlinkVerboseProperty.set(debug);
     }
 
     public void setNightMode(boolean nightMode) {
@@ -84,13 +118,19 @@ public class Options extends OptionsBase {
             save();
         };
 
-        mJlinkProperty.addListener(changeListener);
+        mJlinkPathProperty.addListener(changeListener);
+        mJlinkDebugProperty.addListener(changeListener);
+        mJlinkVerboseProperty.addListener(changeListener);
         mNightModeProperty.addListener(changeListener);
+        mWordWrapProperty.addListener(changeListener);
     }
 
     private void save() {
-        put(KEY_NIGHTMODE, isNightMode());
-        put(KEY_JLINK, getJlink());
+        put(KEY_JLINK_PATH, getJlinkPath());
+        put(KEY_JLINK_DEBUG, isJlinkDebug());
+        put(KEY_JLINK_VERBOSE, isJlinkVerbose());
+        put(KEY_UI_NIGHTMODE, isNightMode());
+        put(KEY_UI_WORDWRAP, isWordWrap());
     }
 
     private static class OptionsHolder {

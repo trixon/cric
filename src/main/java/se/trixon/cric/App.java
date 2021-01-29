@@ -101,6 +101,7 @@ public class App extends Application {
             displayOptions();
         });
         FxHelper.setTooltip(mOptionsAction, new KeyCodeCombination(KeyCode.COMMA, KeyCombination.SHORTCUT_DOWN));
+        mOptionsAction.disabledProperty().bind(mRunStateManager.runningProperty());
 
         mHelpAction = new Action(Dict.HELP.toString(), actionEvent -> {
             displayHelp();

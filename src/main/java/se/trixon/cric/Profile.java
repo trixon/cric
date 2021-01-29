@@ -40,7 +40,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
     private int mCompress;
     @SerializedName("description")
     private String mDescription;
-    transient private boolean mDryRun;
     @SerializedName("endian")
     private int mEndian;
     @SerializedName("ignoreSigning")
@@ -51,12 +50,15 @@ public class Profile implements Comparable<Profile>, Cloneable {
     private long mLastRun;
     @SerializedName("modulePaths")
     private ArrayList<ModulePath> mModulePaths;
+    @SerializedName("launcher")
+    private String mLauncher;
     @SerializedName("name")
     private String mName;
     @SerializedName("noHeaders")
     private boolean mNoHeaders;
     @SerializedName("noManPages")
     private boolean mNoManPages;
+    private transient final Options mOptions = Options.getInstance();
     @SerializedName("output")
     private File mOutput;
     @SerializedName("stripDebug")
@@ -84,6 +86,14 @@ public class Profile implements Comparable<Profile>, Cloneable {
     public ArrayList<String> getCommand() {
         ArrayList<String> command = new ArrayList<>();
         command.add(getJlinkString());
+
+        if (mOptions.isJlinkDebug()) {
+            command.add("-J-Djlink.debug=true");
+        }
+
+        if (mOptions.isJlinkVerbose()) {
+            command.add("--verbose");
+        }
 
         if (mBindServices) {
             command.add("--bind-services");
@@ -124,6 +134,11 @@ public class Profile implements Comparable<Profile>, Cloneable {
         command.add("--add-modules");
         command.add(String.join(",", modules));
 
+        if (StringUtils.isNotBlank(mLauncher)) {
+            command.add("--launcher");
+            command.add(mLauncher);
+        }
+
         command.add("--output");
         command.add(mOutput.getPath());
 
@@ -138,10 +153,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return StringUtils.defaultString(mDescription);
     }
 
-    public String getDestDirAsString() {
-        return mOutput == null ? "" : mOutput.getPath();
-    }
-
     public int getEndian() {
         return mEndian;
     }
@@ -151,11 +162,15 @@ public class Profile implements Comparable<Profile>, Cloneable {
     }
 
     public String getJlinkString() {
-        return StringUtils.defaultIfBlank(getJlink().getPath(), Options.getInstance().getJlink());
+        return StringUtils.defaultIfBlank(getJlink().getPath(), mOptions.getJlinkPath());
     }
 
     public long getLastRun() {
         return mLastRun;
+    }
+
+    public String getLauncher() {
+        return mLauncher;
     }
 
     public ArrayList<ModulePath> getModulePaths() {
@@ -174,16 +189,16 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return mOutput;
     }
 
+    public String getOutputAsString() {
+        return mOutput == null ? "" : mOutput.getPath();
+    }
+
     public String getValidationError() {
         return mValidationErrorBuilder.toString();
     }
 
     public boolean isBindServices() {
         return mBindServices;
-    }
-
-    public boolean isDryRun() {
-        return mDryRun;
     }
 
     public boolean isIgnoreSigning() {
@@ -205,8 +220,18 @@ public class Profile implements Comparable<Profile>, Cloneable {
     public boolean isValid() {
         mValidationErrorBuilder = new StringBuilder();
 
-        if (mOutput == null || !mOutput.isDirectory()) {
-            addValidationError(String.format("Invalid output directory", mOutput));
+        if (!new File(getJlinkString()).isFile()) {
+            addValidationError("Invalid jlink");
+        }
+
+        if (mOutput == null || StringUtils.isBlank(mOutput.getPath())) {
+            addValidationError("Invalid output directory");
+        }
+
+        for (var modulePath : mModulePaths) {
+            if (!modulePath.mDirectory.isDirectory()) {
+                addValidationError("Invalid module directory: " + modulePath.mDirectory.getPath());
+            }
         }
 
         return mValidationErrorBuilder.length() == 0;
@@ -224,10 +249,6 @@ public class Profile implements Comparable<Profile>, Cloneable {
         mDescription = description;
     }
 
-    public void setDryRun(boolean dryRun) {
-        mDryRun = dryRun;
-    }
-
     public void setEndian(int endian) {
         mEndian = endian;
     }
@@ -242,6 +263,10 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public void setLastRun(long lastRun) {
         mLastRun = lastRun;
+    }
+
+    public void setLauncher(String launcher) {
+        mLauncher = launcher;
     }
 
     public void setModulePaths(ArrayList<ModulePath> modulePaths) {

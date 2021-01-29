@@ -30,7 +30,6 @@ import javafx.animation.FadeTransition;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
-import javafx.scene.control.ButtonBar;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -45,9 +44,13 @@ import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.commons.io.FileUtils;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
+import org.controlsfx.dialog.ExceptionDialog;
 import se.trixon.almond.util.Dict;
+import se.trixon.almond.util.Log;
+import se.trixon.almond.util.ProcessLogThread;
 import se.trixon.almond.util.SystemHelper;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.icons.material.MaterialIcon;
@@ -72,8 +75,11 @@ public class AppForm extends BorderPane {
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
     private final StatusPanel mStatusPanel = new StatusPanel();
     private final Options mOptions = Options.getInstance();
+    private final Log mLog = new Log();
 
     public AppForm() {
+        mLog.setUseTimestamps(false);
+
         createUI();
         initListeners();
         postInit();
@@ -82,7 +88,7 @@ public class AppForm extends BorderPane {
     }
 
     public void profileEdit(Profile profile) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        var alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initOwner(getStage());
         alert.setResizable(true);
         String title = Dict.EDIT.toString();
@@ -137,6 +143,16 @@ public class AppForm extends BorderPane {
 
         setLeft(mListView);
         setCenter(mStatusPanel);
+        mLog.setOut(s -> {
+            System.out.println(s);
+            mStatusPanel.out(s);
+        });
+
+        mLog.setErr(s -> {
+            System.err.println(s);
+            mStatusPanel.err(s);
+        });
+
     }
 
     private Stage getStage() {
@@ -173,52 +189,90 @@ public class AppForm extends BorderPane {
         String message = String.format(Dict.Dialog.MESSAGE_PROFILE_REMOVE.toString(), profile.getName());
         alert.setHeaderText(message);
 
-        ButtonType removeButtonType = new ButtonType(Dict.REMOVE.toString(), ButtonBar.ButtonData.OK_DONE);
-        ButtonType cancelButtonType = new ButtonType(Dict.CANCEL.toString(), ButtonBar.ButtonData.CANCEL_CLOSE);
-        alert.getButtonTypes().setAll(removeButtonType, cancelButtonType);
+        ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText(Dict.REMOVE.toString());
 
         Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
-        if (result.get() == removeButtonType) {
+        if (result.get() == ButtonType.OK) {
             mProfiles.remove(profile);
             profilesSave();
             populateProfiles(null);
         }
     }
 
-    private void profileRun(Profile profile) {
-        var runButtonType = new ButtonType(Dict.RUN.toString());
-        var dryRunButtonType = new ButtonType(Dict.DRY_RUN.toString(), ButtonBar.ButtonData.OK_DONE);
-        var cancelButtonType = new ButtonType(Dict.CANCEL.toString(), ButtonBar.ButtonData.CANCEL_CLOSE);
+    private boolean requestDirectoryRemoval(Profile profile) {
+        if (profile.getOutput().exists()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.initOwner(getStage());
+            boolean directory = profile.getOutput().isDirectory();
+            String title = directory ? Dict.Dialog.TITLE_REMOVE_DIR.toString() : Dict.Dialog.TITLE_REMOVE_FILE.toString();
+            alert.setTitle(title + "?");
+            String message = String.format(directory ? Dict.Dialog.MESSAGE_REMOVE_DIR.toString() : Dict.Dialog.MESSAGE_REMOVE_FILE.toString(), profile.getOutputAsString());
+            alert.setHeaderText(message);
 
-        String title = String.format(Dict.Dialog.TITLE_PROFILE_RUN.toString(), profile.getName());
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.initOwner(getStage());
-        alert.setTitle(title);
-        alert.setGraphic(null);
-        alert.setHeaderText(null);
-        alert.getButtonTypes().setAll(runButtonType, dryRunButtonType, cancelButtonType);
-        alert.getDialogPane().setContent(new SummaryDetails(profile));
+            ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText(title);
 
-        Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
-        if (result.get() != cancelButtonType) {
-            mStatusPanel.out(String.join(" ", profile.getCommand()));
-
-            boolean dryRun = result.get() == dryRunButtonType;
-            profile.setDryRun(dryRun);
-            mStatusPanel.clear();
-
-            if (profile.isValid()) {
-//                mOperationThread = new Thread(() -> {
-//                    Operation operation = new Operation(mOperationListener, profile);
-//                    operation.start();
-//                });
-//                mOperationThread.setName("Operation");
-//                mOperationThread.start();
+            Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
+            if (result.get() == ButtonType.OK) {
+                try {
+                    FileUtils.forceDelete(profile.getOutput());
+                    return true;
+                } catch (IOException ex) {
+                    Logger.getLogger(AppForm.class.getName()).log(Level.SEVERE, null, ex);
+                    ExceptionDialog exceptionDialog = new ExceptionDialog(ex);
+                    FxHelper.showAndWait(exceptionDialog, getStage());
+                    return false;
+                }
             } else {
-//                mStatusPanel.out(profile.toDebugString());
-                mStatusPanel.out(profile.getValidationError());
-                mStatusPanel.out(Dict.ABORTING.toString());
+                return false;
             }
+
+        } else {
+            return true;
+        }
+    }
+
+    private void profileRun(Profile profile) {
+        mStatusPanel.clear();
+        String runDesc = String.format("%s '%s' (%s)", Dict.RUN.toString(), profile.getName(), profile.getDescription());
+        mStatusPanel.out(runDesc);
+        mStatusPanel.out(String.join(" ", profile.getCommand()));
+
+        if (profile.isValid()) {
+            String title = Dict.RUN.toString();
+            var alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.initOwner(getStage());
+            alert.setTitle(title);
+            alert.setHeaderText(runDesc);
+            ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText(Dict.RUN.toString());
+
+            Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
+            if (result.get() == ButtonType.OK) {
+                if (requestDirectoryRemoval(profile)) {
+                    mRunStateManager.setRunState(RunState.CANCELABLE);
+                    mLog.out("");
+                    new Thread(() -> {
+                        var processBuilder = new ProcessBuilder(profile.getCommand()).inheritIO();
+                        processBuilder.redirectOutput(ProcessBuilder.Redirect.PIPE);
+                        try {
+                            var process = processBuilder.start();
+                            new ProcessLogThread(process.getInputStream(), 0, mLog).start();
+                            new ProcessLogThread(process.getErrorStream(), -1, mLog).start();
+
+                            process.waitFor();
+                            profile.setLastRun(System.currentTimeMillis());
+                            profilesSave();
+                            populateProfiles(profile);
+                        } catch (IOException | InterruptedException ex) {
+                            mLog.timedErr(ex.getMessage());
+                        }
+                        mLog.timedOut("Done.");
+                        mRunStateManager.setRunState(RunState.STARTABLE);
+                    }).start();
+                }
+            }
+        } else {
+            mStatusPanel.out(profile.getValidationError());
+            mStatusPanel.out(Dict.ABORTING.toString());
         }
     }
 
@@ -307,9 +361,9 @@ public class AppForm extends BorderPane {
             String fontFamily = mDefaultFont.getFamily();
             double fontSize = mDefaultFont.getSize();
 
-            mNameLabel.setFont(Font.font(fontFamily, FontWeight.BOLD, fontSize * 1.6));
-            mDescLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.3));
-            mLastLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.3));
+            mNameLabel.setFont(Font.font(fontFamily, FontWeight.BOLD, fontSize * 1.4));
+            mDescLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.2));
+            mLastLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.2));
 
             mRunAction = new Action(Dict.RUN.toString(), actionEvent -> {
                 mFadeOutTransition.playFromStart();

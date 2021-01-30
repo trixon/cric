@@ -311,6 +311,9 @@ public class AppForm extends BorderPane {
 
         if (profile.isValid()) {
             String title = Dict.RUN.toString();
+            if (profile.getOutput().exists()) {
+                runDesc += String.format("?\n\n'%s' will be replaced.", profile.getOutput().getPath());
+            }
             var alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.initOwner(getStage());
             alert.setTitle(title);

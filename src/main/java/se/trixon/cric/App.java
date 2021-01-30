@@ -139,7 +139,7 @@ public class App extends Application {
     }
 
     private void displayHelp() {
-        SystemHelper.desktopBrowse("https://trixon.se/projects/cric/documentation/");
+        SystemHelper.desktopBrowse("https://trixon.se/projects/cric/");
     }
 
     private void displayOptions() {

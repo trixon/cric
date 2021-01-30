@@ -90,6 +90,10 @@ public class AppForm extends BorderPane {
         postInit();
         mRunStateManager.setRunState(RunState.STARTABLE);
         mListView.requestFocus();
+
+        if (mProfileManager.hasProfiles()) {
+            mListView.getSelectionModel().selectFirst();
+        }
     }
 
     public ArrayList<Action> getToolBarActions() {

@@ -10,7 +10,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <javafx.version>15.0.1</javafx.version>
         <netbeans.hint.license>apache20</netbeans.hint.license>
     </properties>
 
@@ -41,11 +40,21 @@
         <tag>HEAD</tag>
     </scm>
 
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-trixon-maven</id>
+            <url>https://dl.bintray.com/trixon/maven</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>se.trixon.almond</groupId>
             <artifactId>almond-util</artifactId>
-            <version>11.0.7-SNAPSHOT</version>
+            <version>11.0.7</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.oshi</groupId>

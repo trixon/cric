@@ -17,6 +17,7 @@ package se.trixon.cric;
 
 import de.jangassen.MenuToolkit;
 import java.util.Arrays;
+import java.util.Locale;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -66,6 +67,7 @@ public class App extends Application {
     private Stage mStage;
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.ENGLISH);
         launch();
     }
 
@@ -88,6 +90,7 @@ public class App extends Application {
 
         initAccelerators();
         initListeners();
+        mAppForm.initAccelerators();
     }
 
     private void createUI() {
@@ -161,10 +164,6 @@ public class App extends Application {
 
         accelerators.put(new KeyCodeCombination(KeyCode.Q, KeyCombination.SHORTCUT_DOWN), () -> {
             mStage.fireEvent(new WindowEvent(mStage, WindowEvent.WINDOW_CLOSE_REQUEST));
-        });
-
-        accelerators.put(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> {
-            mAppForm.profileEdit(null);
         });
 
         if (!SystemUtils.IS_OS_MAC) {

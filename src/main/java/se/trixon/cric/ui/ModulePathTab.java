@@ -77,7 +77,6 @@ public class ModulePathTab extends Tab {
                 rescanModuleDirectory(file);
             } else {
                 mListSelectionView.getSourceItems().clear();
-                mListSelectionView.getTargetItems().clear();
             }
         });
 
@@ -125,11 +124,11 @@ public class ModulePathTab extends Tab {
 
     private void rescanModuleDirectory(File dir) {
         mListSelectionView.getSourceItems().clear();
-        mListSelectionView.getTargetItems().clear();
 
         try {
             mListSelectionView.getSourceItems().setAll(FileUtils.listFiles(dir, new String[]{"jmod"}, false).stream()
                     .map(f -> FilenameUtils.getBaseName(f.getName()))
+                    .filter(s -> !mListSelectionView.getTargetItems().contains(s))
                     .collect(Collectors.toCollection(TreeSet::new)));
         } catch (Exception e) {
         }

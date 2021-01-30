@@ -34,6 +34,9 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -70,12 +73,12 @@ public class AppForm extends BorderPane {
     private final ResourceBundle mBundle = SystemHelper.getBundle(AppForm.class, "Bundle");
     private Font mDefaultFont;
     private ListView<Profile> mListView;
+    private final Log mLog = new Log();
+    private final Options mOptions = Options.getInstance();
     private final ProfileManager mProfileManager = ProfileManager.getInstance();
     private ArrayList<Profile> mProfiles;
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
     private final StatusPanel mStatusPanel = new StatusPanel();
-    private final Options mOptions = Options.getInstance();
-    private final Log mLog = new Log();
 
     public AppForm() {
         mLog.setUseTimestamps(false);
@@ -85,6 +88,38 @@ public class AppForm extends BorderPane {
         postInit();
         mRunStateManager.setRunState(RunState.STARTABLE);
         mListView.requestFocus();
+    }
+
+    public void initAccelerators() {
+        var accelerators = getScene().getAccelerators();
+
+        accelerators.put(new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN), () -> {
+            profileEdit(null);
+        });
+
+        accelerators.put(new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN), () -> {
+            if (getSelectedProfile() != null) {
+                profileRun(getSelectedProfile());
+            }
+        });
+
+        accelerators.put(new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN), () -> {
+            if (getSelectedProfile() != null) {
+                profileEdit(getSelectedProfile());
+            }
+        });
+
+        accelerators.put(new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN), () -> {
+            if (getSelectedProfile() != null) {
+                profileClone(getSelectedProfile());
+            }
+        });
+
+        accelerators.put(new KeyCodeCombination(KeyCode.DELETE), () -> {
+            if (getSelectedProfile() != null) {
+                profileRemove(getSelectedProfile());
+            }
+        });
     }
 
     public void profileEdit(Profile profile) {
@@ -153,6 +188,11 @@ public class AppForm extends BorderPane {
             mStatusPanel.err(s);
         });
 
+        mLog.out(SystemHelper.getSystemInfo());
+    }
+
+    private Profile getSelectedProfile() {
+        return mListView.getSelectionModel().getSelectedItem();
     }
 
     private Stage getStage() {
@@ -182,6 +222,12 @@ public class AppForm extends BorderPane {
         populateProfiles(null);
     }
 
+    private void profileClone(Profile profile) {
+        Profile p = profile.clone();
+        p.setName(null);
+        profileEdit(p);
+    }
+
     private void profileRemove(Profile profile) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initOwner(getStage());
@@ -196,38 +242,6 @@ public class AppForm extends BorderPane {
             mProfiles.remove(profile);
             profilesSave();
             populateProfiles(null);
-        }
-    }
-
-    private boolean requestDirectoryRemoval(Profile profile) {
-        if (profile.getOutput().exists()) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.initOwner(getStage());
-            boolean directory = profile.getOutput().isDirectory();
-            String title = directory ? Dict.Dialog.TITLE_REMOVE_DIR.toString() : Dict.Dialog.TITLE_REMOVE_FILE.toString();
-            alert.setTitle(title + "?");
-            String message = String.format(directory ? Dict.Dialog.MESSAGE_REMOVE_DIR.toString() : Dict.Dialog.MESSAGE_REMOVE_FILE.toString(), profile.getOutputAsString());
-            alert.setHeaderText(message);
-
-            ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText(title);
-
-            Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
-            if (result.get() == ButtonType.OK) {
-                try {
-                    FileUtils.forceDelete(profile.getOutput());
-                    return true;
-                } catch (IOException ex) {
-                    Logger.getLogger(AppForm.class.getName()).log(Level.SEVERE, null, ex);
-                    ExceptionDialog exceptionDialog = new ExceptionDialog(ex);
-                    FxHelper.showAndWait(exceptionDialog, getStage());
-                    return false;
-                }
-            } else {
-                return false;
-            }
-
-        } else {
-            return true;
         }
     }
 
@@ -290,6 +304,38 @@ public class AppForm extends BorderPane {
             mProfileManager.save();
         } catch (IOException ex) {
             LOGGER.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private boolean requestDirectoryRemoval(Profile profile) {
+        if (profile.getOutput().exists()) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.initOwner(getStage());
+            boolean directory = profile.getOutput().isDirectory();
+            String title = directory ? Dict.Dialog.TITLE_REMOVE_DIR.toString() : Dict.Dialog.TITLE_REMOVE_FILE.toString();
+            alert.setTitle(title + "?");
+            String message = String.format(directory ? Dict.Dialog.MESSAGE_REMOVE_DIR.toString() : Dict.Dialog.MESSAGE_REMOVE_FILE.toString(), profile.getOutputAsString());
+            alert.setHeaderText(message);
+
+            ((Button) alert.getDialogPane().lookupButton(ButtonType.OK)).setText(title);
+
+            Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
+            if (result.get() == ButtonType.OK) {
+                try {
+                    FileUtils.forceDelete(profile.getOutput());
+                    return true;
+                } catch (IOException ex) {
+                    Logger.getLogger(AppForm.class.getName()).log(Level.SEVERE, null, ex);
+                    ExceptionDialog exceptionDialog = new ExceptionDialog(ex);
+                    FxHelper.showAndWait(exceptionDialog, getStage());
+                    return false;
+                }
+            } else {
+                return false;
+            }
+
+        } else {
+            return true;
         }
     }
 
@@ -370,24 +416,28 @@ public class AppForm extends BorderPane {
                 profileRun(getSelectedProfile());
                 mListView.requestFocus();
             });
+            FxHelper.setTooltip(mRunAction, new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN));
 
             mEditAction = new Action(Dict.EDIT.toString(), actionEvent -> {
                 mFadeOutTransition.playFromStart();
                 profileEdit(getSelectedProfile());
                 mListView.requestFocus();
             });
+            FxHelper.setTooltip(mEditAction, new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN));
 
             mCloneAction = new Action(Dict.CLONE.toString(), actionEvent -> {
                 mFadeOutTransition.playFromStart();
-                profileClone();
+                profileClone(getSelectedProfile());
                 mListView.requestFocus();
             });
+            FxHelper.setTooltip(mCloneAction, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
 
             mRemoveAction = new Action(Dict.REMOVE.toString(), actionEvent -> {
                 mFadeOutTransition.playFromStart();
                 profileRemove(getSelectedProfile());
                 mListView.requestFocus();
             });
+            FxHelper.setTooltip(mRemoveAction, new KeyCodeCombination(KeyCode.DELETE));
 
             var mainBox = new VBox(mNameLabel, mDescLabel, mLastLabel);
             mainBox.setAlignment(Pos.CENTER_LEFT);
@@ -425,16 +475,6 @@ public class AppForm extends BorderPane {
             mStackPane.setOnMouseExited(mouseEvent -> {
                 mFadeOutTransition.playFromStart();
             });
-        }
-
-        private Profile getSelectedProfile() {
-            return mListView.getSelectionModel().getSelectedItem();
-        }
-
-        private void profileClone() {
-            Profile p = getSelectedProfile().clone();
-            p.setName(null);
-            profileEdit(p);
         }
 
         private void selectListItem() {

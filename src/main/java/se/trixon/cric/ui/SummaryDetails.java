@@ -31,12 +31,14 @@ import se.trixon.cric.Profile;
  */
 public class SummaryDetails extends TextFlow {
 
-    private final Text mJLink = new Text();
-    private final Text mJLinkHeader = new Text("\n\njlink\n");
+    private final Text mJLinkHeaderText = new Text("\n\njlink\n");
+    private final Text mJLinkText = new Text();
+    private final Text mLauncherHeaderText = new Text("\nlauncher\n");
+    private final Text mLauncherText = new Text();
     private final Options mOptions = Options.getInstance();
-    private final Text mOptionsBallots = new Text();
-    private final Text mOutput = new Text();
-    private final Text mOutputHeader = new Text("\noutput\n");
+    private final Text mOptionsBallotsText = new Text();
+    private final Text mOutputHeaderText = new Text("\noutput\n");
+    private final Text mOutputText = new Text();
 
     public SummaryDetails() {
         setVisible(false);
@@ -54,33 +56,38 @@ public class SummaryDetails extends TextFlow {
             return;
         }
 
-        var sb = new StringBuilder();
+        var sb = new StringBuilder("\n");
         sb.append(getBallotBox(profile.isBindServices())).append("bind-services").append(", ");
         sb.append(getBallotBox(profile.isIgnoreSigning())).append("ignore-signing-information").append(", ");
         sb.append(getBallotBox(profile.isNoHeaders())).append("no-header-files").append(", ");
         sb.append(getBallotBox(profile.isNoManPages())).append("no-man-pages").append(", ");
         sb.append(getBallotBox(profile.isStripDebug())).append("strip-debug");
 
-        mOptionsBallots.setText(sb.toString());
-        mJLink.setText(profile.getJlinkString());
-        mOutput.setText(profile.getOutput().getPath());
+        mOptionsBallotsText.setText(sb.toString());
+        mJLinkText.setText(profile.getJlinkString());
+        mOutputText.setText(profile.getOutput().getPath());
+        mLauncherText.setText(profile.getLauncher());
 
         getChildren().setAll(
-                mOptionsBallots,
-                mJLinkHeader,
-                mJLink,
-                mOutputHeader,
-                mOutput
+                mOptionsBallotsText,
+                mJLinkHeaderText,
+                mJLinkText,
+                mLauncherHeaderText,
+                mLauncherText,
+                mOutputHeaderText,
+                mOutputText
         );
 
         HashSet<Text> headerTexts = new HashSet<>();
-        headerTexts.add(mJLinkHeader);
-        headerTexts.add(mOutputHeader);
+        headerTexts.add(mJLinkHeaderText);
+        headerTexts.add(mOutputHeaderText);
+        headerTexts.add(mLauncherHeaderText);
 
         HashSet<Text> bodyTexts = new HashSet<>();
-        bodyTexts.add(mOptionsBallots);
-        bodyTexts.add(mJLink);
-        bodyTexts.add(mOutput);
+        bodyTexts.add(mOptionsBallotsText);
+        bodyTexts.add(mJLinkText);
+        bodyTexts.add(mOutputText);
+        bodyTexts.add(mLauncherText);
 
         for (var modulePath : profile.getModulePaths()) {
             Text path = new Text("\n" + modulePath.getDirectory().getPath());
@@ -92,7 +99,7 @@ public class SummaryDetails extends TextFlow {
         }
 
         var defaultFont = Font.getDefault();
-        double fontSize = defaultFont.getSize() * 1.4;
+        double fontSize = defaultFont.getSize() * 1.2;
 
         getChildren().stream().filter((node) -> (node instanceof Text)).forEachOrdered((node) -> {
             ((Text) node).setFont(Font.font(fontSize));

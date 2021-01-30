@@ -19,14 +19,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.animation.FadeTransition;
+import javafx.beans.binding.BooleanBinding;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -37,16 +36,13 @@ import javafx.scene.control.ListView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import org.apache.commons.io.FileUtils;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
@@ -57,6 +53,7 @@ import se.trixon.almond.util.ProcessLogThread;
 import se.trixon.almond.util.SystemHelper;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.icons.material.MaterialIcon;
+import static se.trixon.cric.App.ICON_SIZE_TOOLBAR;
 import se.trixon.cric.Options;
 import se.trixon.cric.Profile;
 import se.trixon.cric.ProfileManager;
@@ -70,13 +67,18 @@ import se.trixon.cric.RunStateManager;
 public class AppForm extends BorderPane {
 
     private static final Logger LOGGER = Logger.getLogger(AppForm.class.getName());
+    private Action mAddAction;
     private final ResourceBundle mBundle = SystemHelper.getBundle(AppForm.class, "Bundle");
+    private Action mCloneAction;
     private Font mDefaultFont;
+    private Action mEditAction;
     private ListView<Profile> mListView;
     private final Log mLog = new Log();
     private final Options mOptions = Options.getInstance();
     private final ProfileManager mProfileManager = ProfileManager.getInstance();
     private ArrayList<Profile> mProfiles;
+    private Action mRemoveAction;
+    private Action mRunAction;
     private final RunStateManager mRunStateManager = RunStateManager.getInstance();
     private final StatusPanel mStatusPanel = new StatusPanel();
 
@@ -88,6 +90,20 @@ public class AppForm extends BorderPane {
         postInit();
         mRunStateManager.setRunState(RunState.STARTABLE);
         mListView.requestFocus();
+    }
+
+    public ArrayList<Action> getToolBarActions() {
+        var actions = new ArrayList<>(Arrays.asList(
+                mAddAction,
+                mEditAction,
+                mCloneAction,
+                mRemoveAction,
+                ActionUtils.ACTION_SEPARATOR,
+                mRunAction,
+                ActionUtils.ACTION_SEPARATOR
+        ));
+
+        return actions;
     }
 
     public void initAccelerators() {
@@ -122,7 +138,114 @@ public class AppForm extends BorderPane {
         });
     }
 
-    public void profileEdit(Profile profile) {
+    private void createUI() {
+        mDefaultFont = Font.getDefault();
+
+        mListView = new ListView<>();
+        mListView.setCellFactory(listView -> new ProfileListCell());
+        mListView.disableProperty().bind(mRunStateManager.runningProperty());
+        mListView.setPrefWidth(400);
+
+        var welcomeLabel = new Label(mBundle.getString("welcome"));
+        welcomeLabel.setFont(Font.font(mDefaultFont.getName(), FontPosture.ITALIC, mDefaultFont.getSize()));
+
+        mListView.setPlaceholder(welcomeLabel);
+
+        setLeft(mListView);
+        setCenter(mStatusPanel);
+        mLog.setOut(s -> {
+            System.out.println(s);
+            mStatusPanel.out(s);
+        });
+
+        mLog.setErr(s -> {
+            System.err.println(s);
+            mStatusPanel.err(s);
+        });
+
+        mLog.out(SystemHelper.getSystemInfo());
+
+        mAddAction = new Action(Dict.ADD.toString(), actionEvent -> {
+            profileEdit(null);
+        });
+        FxHelper.setTooltip(mAddAction, new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
+        mAddAction.disabledProperty().bind(mRunStateManager.runningProperty());
+
+        BooleanBinding profileBooleanBinding = mRunStateManager.profileProperty().isNull().or(mRunStateManager.runningProperty());
+
+        mRunAction = new Action(Dict.RUN.toString(), actionEvent -> {
+            profileRun(getSelectedProfile());
+            mListView.requestFocus();
+        });
+        FxHelper.setTooltip(mRunAction, new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN));
+        mRunAction.disabledProperty().bind(profileBooleanBinding);
+
+        mEditAction = new Action(Dict.EDIT.toString(), actionEvent -> {
+            profileEdit(getSelectedProfile());
+            mListView.requestFocus();
+        });
+        FxHelper.setTooltip(mEditAction, new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN));
+        mEditAction.disabledProperty().bind(profileBooleanBinding);
+
+        mCloneAction = new Action(Dict.CLONE.toString(), actionEvent -> {
+            profileClone(getSelectedProfile());
+            mListView.requestFocus();
+        });
+        FxHelper.setTooltip(mCloneAction, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
+        mCloneAction.disabledProperty().bind(profileBooleanBinding);
+
+        mRemoveAction = new Action(Dict.REMOVE.toString(), actionEvent -> {
+            profileRemove(getSelectedProfile());
+            mListView.requestFocus();
+        });
+        FxHelper.setTooltip(mRemoveAction, new KeyCodeCombination(KeyCode.DELETE));
+        mRemoveAction.disabledProperty().bind(profileBooleanBinding);
+
+        updateNightMode();
+    }
+
+    private Profile getSelectedProfile() {
+        return mListView.getSelectionModel().getSelectedItem();
+    }
+
+    private Stage getStage() {
+        return (Stage) getScene().getWindow();
+    }
+
+    private void initListeners() {
+        mListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            mRunStateManager.setProfile(newValue);
+        });
+
+        mOptions.nightModeProperty().addListener((observable, oldValue, newValue) -> {
+            updateNightMode();
+        });
+    }
+
+    private void populateProfiles(Profile profile) {
+        FxHelper.runLater(() -> {
+            Collections.sort(mProfiles);
+            mListView.getItems().setAll(mProfiles);
+
+            if (profile != null) {
+                mListView.getSelectionModel().select(profile);
+                mListView.scrollTo(profile);
+            }
+        });
+    }
+
+    private void postInit() {
+        profilesLoad();
+        populateProfiles(null);
+    }
+
+    private void profileClone(Profile profile) {
+        Profile p = profile.clone();
+        p.setName(null);
+        profileEdit(p);
+    }
+
+    private void profileEdit(Profile profile) {
         var alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.initOwner(getStage());
         alert.setResizable(true);
@@ -161,71 +284,6 @@ public class AppForm extends BorderPane {
             profilesSave();
             populateProfiles(profile);
         }
-    }
-
-    private void createUI() {
-        mDefaultFont = Font.getDefault();
-
-        mListView = new ListView<>();
-        mListView.setCellFactory(listView -> new ProfileListCell());
-        mListView.disableProperty().bind(mRunStateManager.runningProperty());
-        mListView.setPrefWidth(400);
-
-        var welcomeLabel = new Label(mBundle.getString("welcome"));
-        welcomeLabel.setFont(Font.font(mDefaultFont.getName(), FontPosture.ITALIC, mDefaultFont.getSize()));
-
-        mListView.setPlaceholder(welcomeLabel);
-
-        setLeft(mListView);
-        setCenter(mStatusPanel);
-        mLog.setOut(s -> {
-            System.out.println(s);
-            mStatusPanel.out(s);
-        });
-
-        mLog.setErr(s -> {
-            System.err.println(s);
-            mStatusPanel.err(s);
-        });
-
-        mLog.out(SystemHelper.getSystemInfo());
-    }
-
-    private Profile getSelectedProfile() {
-        return mListView.getSelectionModel().getSelectedItem();
-    }
-
-    private Stage getStage() {
-        return (Stage) getScene().getWindow();
-    }
-
-    private void initListeners() {
-        mListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            mRunStateManager.setProfile(newValue);
-        });
-    }
-
-    private void populateProfiles(Profile profile) {
-        FxHelper.runLater(() -> {
-            Collections.sort(mProfiles);
-            mListView.getItems().setAll(mProfiles);
-
-            if (profile != null) {
-                mListView.getSelectionModel().select(profile);
-                mListView.scrollTo(profile);
-            }
-        });
-    }
-
-    private void postInit() {
-        profilesLoad();
-        populateProfiles(null);
-    }
-
-    private void profileClone(Profile profile) {
-        Profile p = profile.clone();
-        p.setName(null);
-        profileEdit(p);
     }
 
     private void profileRemove(Profile profile) {
@@ -339,38 +397,26 @@ public class AppForm extends BorderPane {
         }
     }
 
+    private void updateNightMode() {
+        MaterialIcon.setDefaultColor(mOptions.isNightMode() ? Color.LIGHTGRAY : Color.BLACK);
+
+        mAddAction.setGraphic(MaterialIcon._Content.ADD.getImageView(ICON_SIZE_TOOLBAR));
+        mRunAction.setGraphic(MaterialIcon._Av.PLAY_ARROW.getImageView(ICON_SIZE_TOOLBAR));
+        mEditAction.setGraphic(MaterialIcon._Content.CREATE.getImageView(ICON_SIZE_TOOLBAR));
+        mCloneAction.setGraphic(MaterialIcon._Content.CONTENT_COPY.getImageView(ICON_SIZE_TOOLBAR));
+        mRemoveAction.setGraphic(MaterialIcon._Content.REMOVE.getImageView(ICON_SIZE_TOOLBAR));
+    }
+
     class ProfileListCell extends ListCell<Profile> {
 
-        private static final int ICON_SIZE_PROFILE = 24;
-        private Action mCloneAction;
-        private Action mEditAction;
-
         private final Label mDescLabel = new Label();
-        private final Duration mDuration = Duration.millis(200);
-        private final FadeTransition mFadeInTransition = new FadeTransition();
-        private final FadeTransition mFadeOutTransition = new FadeTransition();
         private final Label mLastLabel = new Label();
         private final Label mNameLabel = new Label();
         private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat();
-        private final StackPane mStackPane = new StackPane();
-        private Action mRemoveAction;
-        private Action mRunAction;
+        private VBox mMainBox;
 
         public ProfileListCell() {
-            mFadeInTransition.setDuration(mDuration);
-            mFadeInTransition.setFromValue(0);
-            mFadeInTransition.setToValue(1);
-
-            mFadeOutTransition.setDuration(mDuration);
-            mFadeOutTransition.setFromValue(1);
-            mFadeOutTransition.setToValue(0);
-
             createUI();
-            updateNightMode();
-
-            mOptions.nightModeProperty().addListener((observable, oldValue, newValue) -> {
-                updateNightMode();
-            });
         }
 
         @Override
@@ -395,7 +441,7 @@ public class AppForm extends BorderPane {
             }
             mLastLabel.setText(lastRun);
 
-            setGraphic(mStackPane);
+            setGraphic(mMainBox);
         }
 
         private void clearContent() {
@@ -411,85 +457,8 @@ public class AppForm extends BorderPane {
             mDescLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.2));
             mLastLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.2));
 
-            mRunAction = new Action(Dict.RUN.toString(), actionEvent -> {
-                mFadeOutTransition.playFromStart();
-                profileRun(getSelectedProfile());
-                mListView.requestFocus();
-            });
-            FxHelper.setTooltip(mRunAction, new KeyCodeCombination(KeyCode.R, KeyCombination.SHORTCUT_DOWN));
-
-            mEditAction = new Action(Dict.EDIT.toString(), actionEvent -> {
-                mFadeOutTransition.playFromStart();
-                profileEdit(getSelectedProfile());
-                mListView.requestFocus();
-            });
-            FxHelper.setTooltip(mEditAction, new KeyCodeCombination(KeyCode.E, KeyCombination.SHORTCUT_DOWN));
-
-            mCloneAction = new Action(Dict.CLONE.toString(), actionEvent -> {
-                mFadeOutTransition.playFromStart();
-                profileClone(getSelectedProfile());
-                mListView.requestFocus();
-            });
-            FxHelper.setTooltip(mCloneAction, new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN));
-
-            mRemoveAction = new Action(Dict.REMOVE.toString(), actionEvent -> {
-                mFadeOutTransition.playFromStart();
-                profileRemove(getSelectedProfile());
-                mListView.requestFocus();
-            });
-            FxHelper.setTooltip(mRemoveAction, new KeyCodeCombination(KeyCode.DELETE));
-
-            var mainBox = new VBox(mNameLabel, mDescLabel, mLastLabel);
-            mainBox.setAlignment(Pos.CENTER_LEFT);
-
-            Collection<? extends Action> actions = Arrays.asList(
-                    mRunAction,
-                    mEditAction,
-                    mCloneAction,
-                    mRemoveAction
-            );
-
-            var toolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.HIDE);
-            toolBar.setBackground(Background.EMPTY);
-            toolBar.setVisible(false);
-            toolBar.setMaxWidth(4 * ICON_SIZE_PROFILE * 1.84);
-            FxHelper.slimToolBar(toolBar);
-            FxHelper.undecorateButtons(toolBar.getItems().stream());
-            FxHelper.adjustButtonWidth(toolBar.getItems().stream(), ICON_SIZE_PROFILE * 1.8);
-
-            mFadeInTransition.setNode(toolBar);
-            mFadeOutTransition.setNode(toolBar);
-            mStackPane.getChildren().setAll(mainBox, toolBar);
-            StackPane.setAlignment(toolBar, Pos.CENTER_RIGHT);
-
-            mStackPane.setOnMouseEntered(mouseEvent -> {
-                if (!toolBar.isVisible()) {
-                    toolBar.setVisible(true);
-                }
-
-                selectListItem();
-                mRunStateManager.setProfile(getSelectedProfile());
-                mFadeInTransition.playFromStart();
-            });
-
-            mStackPane.setOnMouseExited(mouseEvent -> {
-                mFadeOutTransition.playFromStart();
-            });
-        }
-
-        private void selectListItem() {
-            mListView.getSelectionModel().select(this.getIndex());
-            mListView.requestFocus();
-        }
-
-        private void updateNightMode() {
-            MaterialIcon.setDefaultColor(mOptions.isNightMode() ? Color.LIGHTGRAY : Color.BLACK);
-
-            mRunAction.setGraphic(MaterialIcon._Av.PLAY_ARROW.getImageView(ICON_SIZE_PROFILE));
-            mEditAction.setGraphic(MaterialIcon._Content.CREATE.getImageView(ICON_SIZE_PROFILE));
-            mCloneAction.setGraphic(MaterialIcon._Content.CONTENT_COPY.getImageView(ICON_SIZE_PROFILE));
-            mRemoveAction.setGraphic(MaterialIcon._Content.REMOVE.getImageView(ICON_SIZE_PROFILE));
+            mMainBox = new VBox(mNameLabel, mDescLabel, mLastLabel);
+            mMainBox.setAlignment(Pos.CENTER_LEFT);
         }
     }
-
 }

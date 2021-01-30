@@ -23,14 +23,16 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.ToolBar;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.commons.lang3.SystemUtils;
@@ -54,9 +56,8 @@ import se.trixon.cric.ui.OptionsPanel;
 public class App extends Application {
 
     public static final String APP_TITLE = "CRIC";
-    private static final int ICON_SIZE_TOOLBAR = 32;
+    public static final int ICON_SIZE_TOOLBAR = 32;
     private Action mAboutAction;
-    private Action mAddAction;
     private final AlmondFx mAlmondFX = AlmondFx.getInstance();
     private AppForm mAppForm;
     private Action mHelpAction;
@@ -94,12 +95,6 @@ public class App extends Application {
     }
 
     private void createUI() {
-        mAddAction = new Action(Dict.ADD.toString(), actionEvent -> {
-            mAppForm.profileEdit(null);
-        });
-        FxHelper.setTooltip(mAddAction, new KeyCodeCombination(KeyCode.N, KeyCombination.SHORTCUT_DOWN));
-        mAddAction.disabledProperty().bind(mRunStateManager.runningProperty());
-
         mOptionsAction = new Action(Dict.OPTIONS.toString(), actionEvent -> {
             displayOptions();
         });
@@ -117,24 +112,30 @@ public class App extends Application {
         aboutModel.setAppVersion(pomInfo.getVersion());
         mAboutAction = AboutPane.getAction(mStage, aboutModel);
 
-        var actions = Arrays.asList(
-                mAddAction,
-                mOptionsAction,
+        mRoot = new BorderPane(mAppForm = new AppForm());
+        var actions = mAppForm.getToolBarActions();
+        actions.addAll(Arrays.asList(
                 ActionUtils.ACTION_SPAN,
+                ActionUtils.ACTION_SPAN,
+                mOptionsAction,
                 mAboutAction,
                 mHelpAction
-        );
+        ));
 
-        ToolBar toolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.SHOW);
+        var toolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.HIDE);
         FxHelper.undecorateButtons(toolBar.getItems().stream());
         FxHelper.slimToolBar(toolBar);
 
-        mRoot = new BorderPane();
-        mRoot.setTop(toolBar);
-        mRoot.setCenter(mAppForm = new AppForm());
-        var scene = new Scene(mRoot);
+        var defaultFont = Font.getDefault();
+        double fontSize = defaultFont.getSize() * 1.4;
 
-        mStage.setScene(scene);
+        var headerFont = Font.font(defaultFont.getName(), FontWeight.EXTRA_BOLD, fontSize);
+        var headerLabel = new Label("Custom Runtime Image Creator");
+        headerLabel.setFont(headerFont);
+        toolBar.getItems().add(8, headerLabel);
+
+        mRoot.setTop(toolBar);
+        mStage.setScene(new Scene(mRoot));
     }
 
     private void displayHelp() {
@@ -206,7 +207,6 @@ public class App extends Application {
     private void updateNightMode() {
         MaterialIcon.setDefaultColor(mOptions.isNightMode() ? Color.LIGHTGRAY : Color.BLACK);
 
-        mAddAction.setGraphic(MaterialIcon._Content.ADD.getImageView(ICON_SIZE_TOOLBAR));
         mOptionsAction.setGraphic(MaterialIcon._Action.SETTINGS.getImageView(ICON_SIZE_TOOLBAR));
         mAboutAction.setGraphic(MaterialIcon._Action.INFO_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));
         mHelpAction.setGraphic(MaterialIcon._Action.HELP_OUTLINE.getImageView(ICON_SIZE_TOOLBAR));

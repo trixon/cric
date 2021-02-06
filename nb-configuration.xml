@@ -15,5 +15,6 @@ Any value defined here will override the pom.xml file value but is only applicab
 -->
         <netbeans.compile.on.save>all</netbeans.compile.on.save>
         <netbeans.hint.license>apache20</netbeans.hint.license>
+        <netbeans.hint.jdkPlatform>JDK_11.0.10.hs-adpt</netbeans.hint.jdkPlatform>
     </properties>
 </project-shared-configuration>

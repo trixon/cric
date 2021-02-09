@@ -1,7 +1,7 @@
 name: cric
 title: CRIC
 base: core18
-version: '1.0.1-SNAPSHOT'
+version: 1.0.1
 summary: A Java jlink ui - a Custom Runtime Image Creator
 description: |
     **CRIC** is a gui for the Java jlink command.
@@ -30,8 +30,8 @@ apps:
 parts:
   cric:
     plugin: dump
-    #source: https://github.com/trixon/cric/releases/download/v$SNAPCRAFT_PROJECT_VERSION/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
-    source: /root/project/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
+    source: https://github.com/trixon/cric/releases/download/v$SNAPCRAFT_PROJECT_VERSION/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
+    #source: /root/project/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
     source-type: zip
     organize:
       '*' : cric

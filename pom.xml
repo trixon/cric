@@ -149,7 +149,7 @@
         <dependency>
             <groupId>se.trixon.almond</groupId>
             <artifactId>almond-util</artifactId>
-            <version>11.0.7</version>
+            <version>11.0.8-SNAPSHOT</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.github.oshi</groupId>

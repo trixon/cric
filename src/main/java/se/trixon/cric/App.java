@@ -84,9 +84,8 @@ public class App extends Application {
 
         updateNightMode();
         mStage.setTitle(APP_TITLE);
-        if (mOptions.isNightMode()) {
-            mStage.getScene().setFill(Color.web("#3c3f41"));
-        }
+        FxHelper.removeSceneInitFlicker(mStage);
+
         mStage.show();
 
         initAccelerators();
@@ -153,6 +152,8 @@ public class App extends Application {
         var optionsPanel = new OptionsPanel();
         var dialogPane = alert.getDialogPane();
         dialogPane.setContent(optionsPanel);
+        FxHelper.removeSceneInitFlicker(dialogPane);
+
         var button = (Button) dialogPane.lookupButton(ButtonType.OK);
         button.setText(Dict.CLOSE.toString());
         dialogPane.setPrefSize(400, 200);

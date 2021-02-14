@@ -277,6 +277,7 @@ public class AppForm extends BorderPane {
 
         dialogPane.setContent(profilePanel);
         profilePanel.setOkButton(button);
+        FxHelper.removeSceneInitFlicker(dialogPane);
 
         Optional<ButtonType> result = FxHelper.showAndWait(alert, getStage());
         if (result.get() == ButtonType.OK) {
@@ -311,7 +312,7 @@ public class AppForm extends BorderPane {
         mStatusPanel.clear();
         String runDesc = String.format("%s '%s' (%s)", Dict.RUN.toString(), profile.getName(), profile.getDescription());
         mStatusPanel.out(runDesc);
-        mStatusPanel.out(String.join(" ", profile.getCommand()));
+        mStatusPanel.out(String.join(" \\\n    ", profile.getCommand()));
 
         if (profile.isValid()) {
             String title = Dict.RUN.toString();

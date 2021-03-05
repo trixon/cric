@@ -18,6 +18,7 @@ package se.trixon.cric;
 import de.jangassen.MenuToolkit;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.prefs.Preferences;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -40,11 +41,13 @@ import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.PomInfo;
+import se.trixon.almond.util.SnapHelperFx;
 import se.trixon.almond.util.SystemHelper;
 import se.trixon.almond.util.SystemHelperFx;
 import se.trixon.almond.util.fx.AboutModel;
 import se.trixon.almond.util.fx.AlmondFx;
 import se.trixon.almond.util.fx.FxHelper;
+import se.trixon.almond.util.fx.dialogs.OptionalDialog;
 import se.trixon.almond.util.fx.dialogs.about.AboutPane;
 import se.trixon.almond.util.icons.material.MaterialIcon;
 import se.trixon.cric.ui.AppForm;
@@ -74,6 +77,7 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) {
+        OptionalDialog.setPreferences(Preferences.userNodeForPackage(App.class));
         mStage = stage;
         stage.getIcons().add(new Image(App.class.getResourceAsStream("about_logo.png")));
         mAlmondFX.addStageWatcher(stage, App.class);
@@ -91,6 +95,8 @@ public class App extends Application {
         initAccelerators();
         initListeners();
         mAppForm.initAccelerators();
+
+        SnapHelperFx.checkSnapStatus(App.class, "snap", mStage, "cric", "removable-media");
     }
 
     private void createUI() {

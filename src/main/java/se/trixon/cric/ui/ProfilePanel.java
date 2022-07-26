@@ -15,8 +15,12 @@
  */
 package se.trixon.cric.ui;
 
+import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
@@ -29,9 +33,12 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.validation.ValidationResult;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
@@ -200,7 +207,7 @@ public class ProfilePanel extends BorderPane {
     }
 
     private void initListeners() {
-        mTabPane.getSelectionModel().selectedItemProperty().addListener((ObservableValue<? extends Tab> ov, Tab oldTab, Tab newTab) -> {
+        mTabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
             if (mTabPane.getSelectionModel().getSelectedIndex() == 0) {
                 Platform.runLater(() -> {
                     var modulePathTab = new ModulePathTab(mTabCounter++, null);
@@ -209,6 +216,40 @@ public class ProfilePanel extends BorderPane {
                 });
             }
         });
+
+        mTabPane.setOnDragOver(dragEvent -> {
+            var dragboard = dragEvent.getDragboard();
+            if (dragboard.hasFiles()) {
+                dragEvent.acceptTransferModes(TransferMode.COPY);
+            }
+        });
+
+        mTabPane.setOnDragDropped(dragEvent -> {
+            var files = dragEvent.getDragboard().getFiles();
+            if (!files.isEmpty()) {
+                var file = files.get(0);
+                if (file.isFile() && file.getName().equals("release")) {
+                    try {
+                        var content = FileUtils.readLines(file, Charset.forName("utf-8"));
+                        for (var line : content) {
+                            if (StringUtils.startsWith(line, "MODULES=\"")) {
+                                line = StringUtils.removeStart(line, "MODULES=\"");
+                                line = StringUtils.removeEnd(line, "\"");
+                                final var modules = line;
+                                mTabPane.getTabs().stream().filter(tab -> tab instanceof ModulePathTab).forEachOrdered(tab -> {
+                                    ((ModulePathTab) tab).select(modules);
+                                });
+                                break;
+                            }
+
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(ProfilePanel.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        });
+
     }
 
     private void initTab(Profile p) {

@@ -25,6 +25,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.ListSelectionView;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
@@ -68,6 +69,15 @@ public class ModulePathTab extends Tab {
         modulePath.setSelectedModules(new TreeSet(mListSelectionView.getTargetItems()));
 
         return modulePath;
+    }
+
+    void select(String modules) {
+        for (var module : StringUtils.split(modules)) {
+            if (mListSelectionView.getSourceItems().contains(module)) {
+                mListSelectionView.getSourceItems().remove(module);
+                mListSelectionView.getTargetItems().add(module);
+            }
+        }
     }
 
     private void initListeners() {

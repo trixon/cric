@@ -133,7 +133,7 @@ public class App extends Application {
         double fontSize = defaultFont.getSize() * 1.4;
 
         var headerFont = Font.font(defaultFont.getName(), FontWeight.EXTRA_BOLD, fontSize);
-        var headerLabel = new Label("Custom Runtime Image Creator");
+        var headerLabel = new Label("Custom Runtime Image Creator for Java");
         headerLabel.setFont(headerFont);
         toolBar.getItems().add(1, headerLabel);
         mAppForm.setToolBar(toolBar);

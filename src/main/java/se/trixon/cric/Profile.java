@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import se.trixon.almond.util.SystemHelper;
@@ -31,7 +30,7 @@ import se.trixon.almond.util.fx.control.editable_list.EditableListItem;
  *
  * @author Patrik Karlström
  */
-public class Profile implements EditableListItem, Comparable<Profile>, Cloneable {
+public class Profile implements EditableListItem {
 
     private static final Logger LOGGER = Logger.getLogger(Profile.class.getName());
 
@@ -70,21 +69,6 @@ public class Profile implements EditableListItem, Comparable<Profile>, Cloneable
     private transient StringBuilder mValidationErrorBuilder = new StringBuilder();
 
     public Profile() {
-    }
-
-    @Override
-    public Profile clone() {
-        try {
-            return (Profile) super.clone();
-        } catch (CloneNotSupportedException ex) {
-            LOGGER.log(Level.SEVERE, null, ex);
-            return null;
-        }
-    }
-
-    @Override
-    public int compareTo(Profile o) {
-        return mName.compareTo(o.getName());
     }
 
     public ArrayList<String> getCommand() {

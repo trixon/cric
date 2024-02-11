@@ -54,7 +54,7 @@ import se.trixon.cric.StorageManager;
  *
  * @author Patrik Karlström
  */
-public class ProfilePanel extends BorderPane {
+public class ProfileEditor extends BorderPane {
 
     private CheckBox mBindServicesCheckBox;
     private ComboBox mCompressComboBox;
@@ -74,7 +74,10 @@ public class ProfilePanel extends BorderPane {
     private int mTabCounter = 0;
     private TabPane mTabPane;
 
-    public ProfilePanel(Profile p) {
+    public ProfileEditor(Profile p) {
+        if (p == null) {
+            p = new Profile();
+        }
         mProfile = p;
         createUI();
 
@@ -251,7 +254,7 @@ public class ProfilePanel extends BorderPane {
 
                         }
                     } catch (IOException ex) {
-                        Logger.getLogger(ProfilePanel.class.getName()).log(Level.SEVERE, null, ex);
+                        Logger.getLogger(ProfileEditor.class.getName()).log(Level.SEVERE, null, ex);
                     }
                 }
             }

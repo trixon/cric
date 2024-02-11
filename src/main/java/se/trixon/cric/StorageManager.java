@@ -35,7 +35,7 @@ import se.trixon.almond.util.gson_adapter.FileAdapter;
  */
 public class StorageManager {
 
-    private static final Gson GSON = new GsonBuilder()
+    public static final Gson GSON = new GsonBuilder()
             .setVersion(1.0)
             .serializeNulls()
             .setPrettyPrinting()
@@ -51,7 +51,6 @@ public class StorageManager {
     }
 
     public static void save() {
-        System.out.println("save");
         try {
             StorageManager.getInstance().saveToFile();
         } catch (IOException ex) {

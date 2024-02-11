@@ -48,6 +48,7 @@ import se.trixon.almond.util.fx.control.FileChooserPane;
 import se.trixon.cric.Profile;
 import se.trixon.cric.Profile.ModulePath;
 import se.trixon.cric.ProfileManager;
+import se.trixon.cric.StorageManager;
 
 /**
  *
@@ -61,14 +62,14 @@ public class ProfilePanel extends BorderPane {
     private ComboBox mEndianComboBox;
     private CheckBox mIgnoreSigningCheckBox;
     private FileChooserPane mJlinkChooserPane;
-    private TextField mNameTextField;
     private TextField mLauncherTextField;
+    private final ProfileManager mManager = ProfileManager.getInstance();
+    private TextField mNameTextField;
     private CheckBox mNoHeadersCheckBox;
     private CheckBox mNoManPagesCheckBox;
     private Button mOkButton;
     private FileChooserPane mOutputChooserPane;
     private final Profile mProfile;
-    private final ProfileManager mProfileManager = ProfileManager.getInstance();
     private CheckBox mStripDebugCheckBox;
     private int mTabCounter = 0;
     private TabPane mTabPane;
@@ -99,7 +100,9 @@ public class ProfilePanel extends BorderPane {
         });
     }
 
-    public void save() {
+    public Profile save() {
+        mManager.getIdToItem().put(mProfile.getId(), mProfile);
+
         mProfile.setName(mNameTextField.getText().trim());
         mProfile.setDescription(mDescTextField.getText());
         mProfile.setLauncher(mLauncherTextField.getText());
@@ -113,13 +116,17 @@ public class ProfilePanel extends BorderPane {
         mProfile.setCompress(mCompressComboBox.getSelectionModel().getSelectedIndex());
         mProfile.setEndian(mEndianComboBox.getSelectionModel().getSelectedIndex());
 
-        ArrayList<ModulePath> modulePaths = new ArrayList<>();
+        var modulePaths = new ArrayList<ModulePath>();
 
         mTabPane.getTabs().stream().filter(tab -> (tab instanceof ModulePathTab)).forEachOrdered(tab -> {
             modulePaths.add(((ModulePathTab) tab).getModulePath());
         });
 
         mProfile.setModulePaths(modulePaths);
+
+        StorageManager.save();
+
+        return mProfile;
     }
 
     void setOkButton(Button button) {
@@ -273,7 +280,7 @@ public class ProfilePanel extends BorderPane {
         boolean indicateRequired = false;
 
         Predicate namePredicate = (Predicate) (Object o) -> {
-            return mProfileManager.isValid(mProfile.getName(), (String) o);
+            return mManager.isValid(mProfile.getName(), (String) o);
         };
 
         var validationSupport = new ValidationSupport();

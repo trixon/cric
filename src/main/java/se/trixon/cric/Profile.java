@@ -20,16 +20,18 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
 import se.trixon.almond.util.SystemHelper;
+import se.trixon.almond.util.fx.control.editable_list.EditableListItem;
 
 /**
  *
  * @author Patrik Karlström
  */
-public class Profile implements Comparable<Profile>, Cloneable {
+public class Profile implements EditableListItem, Comparable<Profile>, Cloneable {
 
     private static final Logger LOGGER = Logger.getLogger(Profile.class.getName());
 
@@ -42,16 +44,18 @@ public class Profile implements Comparable<Profile>, Cloneable {
     private String mDescription;
     @SerializedName("endian")
     private int mEndian;
+    @SerializedName("uuid")
+    private String mId = UUID.randomUUID().toString();
     @SerializedName("ignoreSigning")
     private boolean mIgnoreSigning;
     @SerializedName("jlink")
     private File mJlink;
     @SerializedName("last_run")
     private long mLastRun;
-    @SerializedName("modulePaths")
-    private ArrayList<ModulePath> mModulePaths;
     @SerializedName("launcher")
     private String mLauncher;
+    @SerializedName("modulePaths")
+    private ArrayList<ModulePath> mModulePaths;
     @SerializedName("name")
     private String mName;
     @SerializedName("noHeaders")
@@ -84,7 +88,7 @@ public class Profile implements Comparable<Profile>, Cloneable {
     }
 
     public ArrayList<String> getCommand() {
-        ArrayList<String> command = new ArrayList<>();
+        var command = new ArrayList<String>();
         command.add(getJlinkString());
 
         if (mOptions.isJlinkDebug()) {
@@ -121,8 +125,8 @@ public class Profile implements Comparable<Profile>, Cloneable {
             command.add(String.format("--endian %s", new String[]{"", "little", "big"}[mEndian]));
         }
 
-        ArrayList<String> paths = new ArrayList<>();
-        ArrayList<String> modules = new ArrayList<>();
+        var paths = new ArrayList<String>();
+        var modules = new ArrayList<String>();
         for (var modulePath : mModulePaths) {
             paths.add(modulePath.mDirectory.getPath());
             modules.addAll(modulePath.getSelectedModules());
@@ -157,6 +161,10 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return mEndian;
     }
 
+    public String getId() {
+        return mId;
+    }
+
     public File getJlink() {
         return mJlink;
     }
@@ -181,6 +189,7 @@ public class Profile implements Comparable<Profile>, Cloneable {
         return mModulePaths;
     }
 
+    @Override
     public String getName() {
         return mName;
     }
@@ -251,6 +260,10 @@ public class Profile implements Comparable<Profile>, Cloneable {
 
     public void setEndian(int endian) {
         mEndian = endian;
+    }
+
+    public void setId(String id) {
+        mId = id;
     }
 
     public void setIgnoreSigning(boolean ignoreSigning) {

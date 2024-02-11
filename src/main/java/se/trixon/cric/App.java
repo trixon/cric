@@ -94,7 +94,6 @@ public class App extends Application {
 
         initAccelerators();
         initListeners();
-        mAppForm.initAccelerators();
 
         SnapHelperFx.checkSnapStatus(App.class, "snap", mStage, "cric", "removable-media");
     }
@@ -118,14 +117,13 @@ public class App extends Application {
         mAboutAction = AboutPane.getAction(mStage, aboutModel);
 
         mRoot = new BorderPane(mAppForm = new AppForm());
-        var actions = mAppForm.getToolBarActions();
-        actions.addAll(Arrays.asList(
+        var actions = Arrays.asList(
                 ActionUtils.ACTION_SPAN,
                 ActionUtils.ACTION_SPAN,
                 mOptionsAction,
                 mAboutAction,
                 mHelpAction
-        ));
+        );
 
         var toolBar = ActionUtils.createToolBar(actions, ActionUtils.ActionTextBehavior.HIDE);
         FxHelper.undecorateButtons(toolBar.getItems().stream());
@@ -137,9 +135,8 @@ public class App extends Application {
         var headerFont = Font.font(defaultFont.getName(), FontWeight.EXTRA_BOLD, fontSize);
         var headerLabel = new Label("Custom Runtime Image Creator");
         headerLabel.setFont(headerFont);
-        toolBar.getItems().add(8, headerLabel);
-
-        mRoot.setTop(toolBar);
+        toolBar.getItems().add(1, headerLabel);
+        mAppForm.setToolBar(toolBar);
         mStage.setScene(new Scene(mRoot));
     }
 
@@ -224,6 +221,7 @@ public class App extends Application {
         } else {
             FxHelper.unloadDarkTheme(mStage.getScene());
         }
+        mAppForm.updateNightMode();
     }
 
 }

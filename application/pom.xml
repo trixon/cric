@@ -4,51 +4,150 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>se.trixon.cric</groupId>
-        <artifactId>cric-parent</artifactId>
+        <artifactId>parent</artifactId>
         <version>0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>cric-app</artifactId>
+    <artifactId>application</artifactId>
     <packaging>nbm-application</packaging>
 
-    <name>cric-app</name>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <all.clusters>${project.build.directory}/${brandingToken}</all.clusters>
-    </properties>
+    <name>application</name>
 
     <dependencies>
+        <!-- NetBeans -->
         <dependency>
-            <groupId>org.netbeans.cluster</groupId>
-            <artifactId>platform</artifactId>
-            <version>${netbeans.version}</version>
+            <groupId>se.trixon.netbeans-platform</groupId>
+            <artifactId>basic</artifactId>
+            <version>0.1-SNAPSHOT</version>
             <type>pom</type>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-libs-osgi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-netbinox</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-libs-felix</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-core-netigso</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-core-kit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-janitor</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-javahelp</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-swing-laf-dark</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-templates</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-api-visual</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-autoupdate-ui</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-api-search</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-print</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-favorites</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-core-osgi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-libs-batik-read</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-libs-jsr223</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-openide-util-ui-svg</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-core-network</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-swing-tabcontrol</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-autoupdate-cli</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-autoupdate-services</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-core-multiview</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-core-nativeaccess</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.modules</groupId>
+                    <artifactId>org-netbeans-modules-keyring-impl</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.netbeans.api</groupId>
+                    <artifactId>org-netbeans-modules-masterfs-ui</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>cric-branding</artifactId>
+            <artifactId>branding</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- NbModuleSuite functional in RELEASE70 or later: -->
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-nbjunit</artifactId>
-            <version>${netbeans.version}</version>
-            <scope>test</scope> <!-- beyond platform cluster, this often needs to be dropped down to compile/runtime, some other modules in IDE clusters depend on it -->
-        </dependency>
-        <!-- To use Jelly Tools in your functional tests, add or replace with:
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-jellytools-platform</artifactId>
-            <version>${netbeans.version}</version>
-            <scope>test</scope>
-        </dependency>
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>main</artifactId>
             <version>${project.version}</version>
+        </dependency>
+
+        <!-- Trixon -->
+        <dependency>
+            <groupId>se.trixon.almond</groupId>
+            <artifactId>almond-nbp-actions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>se.trixon.almond</groupId>
+            <artifactId>almond-nbp-actions-osx</artifactId>
         </dependency>
     </dependencies>
 
@@ -57,43 +156,14 @@
             <plugin>
                 <groupId>org.apache.netbeans.utilities</groupId>
                 <artifactId>nbm-maven-plugin</artifactId>
-            </plugin>
-            <!-- Permits NbModuleSuite to be run in integration-test phase: -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.12.2</version>
                 <configuration>
-                    <systemPropertyVariables>
-                        <all.clusters>${all.clusters}</all.clusters>
-                        <branding.token>${brandingToken}</branding.token>
-                    </systemPropertyVariables>
+                    <finalName>mapollage-${project.version}</finalName>
+                    <etcConfFile>src/main/resources/cric.conf</etcConfFile>
+                    <verifyRuntime>true</verifyRuntime>
+                    <additionalArguments>&#045;&#045;fontsize 16</additionalArguments>
+                    <!--<additionalArguments>&#045;&#045;locale en</additionalArguments>-->
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>deployment</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.netbeans.utilities</groupId>
-                        <artifactId>nbm-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <id>extra</id>
-                                <goals>
-                                    <goal>autoupdate</goal>
-                                    <goal>webstart-app</goal>
-                                    <goal>build-installers</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>

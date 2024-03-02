@@ -16,7 +16,6 @@
 package se.trixon.cric.ui;
 
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -54,9 +53,8 @@ public final class MainTopComponent extends FxTopComponent {
 
     @Override
     protected void initFX() {
-//        var taskListEditor = new TaskListEditor();
-//        setScene(new Scene(taskListEditor.getEditableList()));
-        setScene(new Scene(new Label("X")));
+        var taskListEditor = new TaskListEditor();
+        setScene(new Scene(taskListEditor.getEditableList()));
     }
 
     void writeProperties(java.util.Properties p) {

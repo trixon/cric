@@ -15,16 +15,19 @@
  */
 package se.trixon.cric.boot;
 
+import java.io.IOException;
 import java.util.prefs.BackingStoreException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.openide.modules.OnStart;
+import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import se.trixon.almond.nbp.dialogs.NbOptionalDialog;
 import se.trixon.almond.nbp.output.OutputLineMode;
 import se.trixon.almond.util.PrefsHelper;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.icons.material.MaterialIcon;
+import se.trixon.cric.core.StorageManager;
 
 /**
  *
@@ -63,6 +66,11 @@ public class DoOnStart implements Runnable {
 
     @Override
     public void run() {
+        try {
+            StorageManager.getInstance().load();
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
     }
 
 }

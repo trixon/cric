@@ -22,6 +22,7 @@ import org.openide.awt.ActionReference;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 import se.trixon.almond.nbp.fx.FxTopComponent;
+import se.trixon.almond.util.Dict;
 
 /**
  * Top component which displays something.
@@ -48,7 +49,7 @@ import se.trixon.almond.nbp.fx.FxTopComponent;
 public final class MainTopComponent extends FxTopComponent {
 
     public MainTopComponent() {
-        setName(Bundle.CTL_MainTopComponent());
+        setName(Dict.TASKS.toString());
     }
 
     @Override

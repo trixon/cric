@@ -20,16 +20,18 @@ import java.util.List;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.layout.BorderPane;
+import javax.swing.JFileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.control.ListSelectionView;
+import se.trixon.almond.nbp.Almond;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.almond.util.fx.control.FileChooserPaneSwingFx;
 import se.trixon.cric.core.Task.ModulePath;
 
 /**
@@ -39,11 +41,11 @@ import se.trixon.cric.core.Task.ModulePath;
 public class ModulePathTab extends Tab {
 
     private final BorderPane mBorderPane = new BorderPane();
-    private final FileChooserPane mFileChooserPane;
+    private final FileChooserPaneSwingFx mFileChooserPane;
     private final ListSelectionView<String> mListSelectionView;
 
     public ModulePathTab(int tabCounter, ModulePath modulePath) {
-        mFileChooserPane = new FileChooserPane(Dict.PATH.toString(), Dict.PATH.toString(), FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
+        mFileChooserPane = new FileChooserPaneSwingFx(Dict.PATH.toString(), Dict.PATH.toString(), Almond.getFrame(), JFileChooser.DIRECTORIES_ONLY);
         mListSelectionView = new ListSelectionView<>();
         ((Label) mListSelectionView.getSourceHeader()).setText(Dict.AVAILABLE.toString());
         ((Label) mListSelectionView.getTargetHeader()).setText(Dict.SELECTED.toString());

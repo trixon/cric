@@ -19,12 +19,13 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -33,18 +34,19 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javax.swing.JFileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.openide.DialogDescriptor;
 import org.openide.util.Exceptions;
+import se.trixon.almond.nbp.Almond;
 import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
-import se.trixon.almond.util.fx.control.FileChooserPane;
+import se.trixon.almond.util.fx.control.FileChooserPaneSwingFx;
 import se.trixon.cric.core.StorageManager;
 import se.trixon.cric.core.Task;
-import se.trixon.cric.core.Task.ModulePath;
 import se.trixon.cric.core.TaskManager;
 
 /**
@@ -59,27 +61,30 @@ public class TaskEditor extends BorderPane {
     private DialogDescriptor mDialogDescriptor;
     private ComboBox mEndianComboBox;
     private CheckBox mIgnoreSigningCheckBox;
-    private FileChooserPane mJlinkChooserPane;
+    private FileChooserPaneSwingFx mJlinkChooserPane;
     private TextField mLauncherTextField;
     private final TaskManager mManager = TaskManager.getInstance();
     private TextField mNameTextField;
     private CheckBox mNoHeadersCheckBox;
     private CheckBox mNoManPagesCheckBox;
-    private FileChooserPane mOutputChooserPane;
+    private FileChooserPaneSwingFx mOutputChooserPane;
     private CheckBox mStripDebugCheckBox;
-    private int mTabCounter = 0;
     private TabPane mTabPane;
+    private ChangeListener<Tab> mTabSelectionListener;
     private Task mTask;
 
     public TaskEditor() {
         createUI();
+        initListeners();
 
         Platform.runLater(() -> {
-//            initValidation();
+            initValidation();
         });
     }
 
     public void load(Task task, DialogDescriptor dialogDescriptor) {
+        mTabPane.getSelectionModel().selectedItemProperty().removeListener(mTabSelectionListener);
+
         if (task == null) {
             task = new Task();
         }
@@ -100,18 +105,14 @@ public class TaskEditor extends BorderPane {
         mCompressComboBox.getSelectionModel().select(task.getCompress());
         mEndianComboBox.getSelectionModel().select(task.getEndian());
 
-        initTab(task);
-        initListeners();
+        initTabs(task);
 
         Platform.runLater(() -> {
-            initValidation();
             mNameTextField.requestFocus();
         });
     }
 
     public Task save() {
-        mManager.getIdToItem().put(mTask.getId(), mTask);
-
         mTask.setName(mNameTextField.getText().trim());
         mTask.setDescription(mDescTextField.getText());
         mTask.setLauncher(mLauncherTextField.getText());
@@ -125,14 +126,15 @@ public class TaskEditor extends BorderPane {
         mTask.setCompress(mCompressComboBox.getSelectionModel().getSelectedIndex());
         mTask.setEndian(mEndianComboBox.getSelectionModel().getSelectedIndex());
 
-        var modulePaths = new ArrayList<ModulePath>();
-
-        mTabPane.getTabs().stream().filter(tab -> (tab instanceof ModulePathTab)).forEachOrdered(tab -> {
-            modulePaths.add(((ModulePathTab) tab).getModulePath());
-        });
+        var modulePaths = mTabPane.getTabs().stream()
+                .filter(tab -> (tab instanceof ModulePathTab))
+                .map(tab -> (ModulePathTab) tab)
+                .map(tab -> tab.getModulePath())
+                .collect(Collectors.toCollection(ArrayList::new));
 
         mTask.setModulePaths(modulePaths);
 
+        mManager.getIdToItem().put(mTask.getId(), mTask);
         StorageManager.save();
 
         return mTask;
@@ -151,8 +153,8 @@ public class TaskEditor extends BorderPane {
 
         mNameTextField = new TextField();
         mDescTextField = new TextField();
-        mJlinkChooserPane = new FileChooserPane(Dict.SELECT.toString(), "jlink", FileChooserPane.ObjectMode.FILE, SelectionMode.SINGLE);
-        mOutputChooserPane = new FileChooserPane(Dict.SELECT.toString(), "output", FileChooserPane.ObjectMode.DIRECTORY, SelectionMode.SINGLE);
+        mJlinkChooserPane = new FileChooserPaneSwingFx(Dict.SELECT.toString(), "jlink", Almond.getFrame(), JFileChooser.FILES_ONLY);
+        mOutputChooserPane = new FileChooserPaneSwingFx(Dict.SELECT.toString(), "output", Almond.getFrame(), JFileChooser.DIRECTORIES_ONLY);
 
         mLauncherTextField = new TextField();
         mLauncherTextField.setPromptText("<name>=<module>[/<mainclass>]");
@@ -195,7 +197,10 @@ public class TaskEditor extends BorderPane {
         subPane.setMaxWidth(Double.MAX_VALUE);
 
         gridPane.add(subPane, 0, ++row, 1, 1);
-        mTabPane = new TabPane();
+
+        var addTab = new Tab("+");
+        addTab.setClosable(false);
+        mTabPane = new TabPane(addTab);
 
         var rowInsets = new Insets(8, 0, 0, 0);
         FxHelper.setPadding(rowInsets,
@@ -219,15 +224,15 @@ public class TaskEditor extends BorderPane {
     }
 
     private void initListeners() {
-        mTabPane.getSelectionModel().selectedItemProperty().addListener((p, o, n) -> {
+        mTabSelectionListener = (p, o, n) -> {
             if (mTabPane.getSelectionModel().getSelectedIndex() == 0) {
                 Platform.runLater(() -> {
-                    var modulePathTab = new ModulePathTab(mTabCounter++, null);
+                    var modulePathTab = new ModulePathTab(mTabPane.getTabs().size(), null);
                     mTabPane.getTabs().add(modulePathTab);
                     mTabPane.getSelectionModel().select(modulePathTab);
                 });
             }
-        });
+        };
 
         mTabPane.setOnDragOver(dragEvent -> {
             var dragboard = dragEvent.getDragboard();
@@ -263,20 +268,22 @@ public class TaskEditor extends BorderPane {
         });
     }
 
-    private void initTab(Task p) {
-        var plusTab = new Tab("+");
-        plusTab.setClosable(false);
-        mTabPane.getTabs().add(plusTab);
+    private void initTabs(Task task) {
+        var tabs = mTabPane.getTabs();
+        if (tabs.size() > 1) {
+            tabs.remove(1, tabs.size());
+        }
 
-        if (p.getModulePaths().isEmpty()) {
-            mTabPane.getTabs().add(new ModulePathTab(mTabCounter++, null));
+        if (task.getModulePaths().isEmpty()) {
+            tabs.add(new ModulePathTab(0, null));
         } else {
-            for (var modulePath : p.getModulePaths()) {
-                mTabPane.getTabs().add(new ModulePathTab(mTabCounter++, modulePath));
+            for (var modulePath : task.getModulePaths()) {
+                tabs.add(new ModulePathTab(tabs.size(), modulePath));
             }
         }
 
         mTabPane.getSelectionModel().select(1);
+        mTabPane.getSelectionModel().selectedItemProperty().addListener(mTabSelectionListener);
     }
 
     private void initValidation() {
@@ -284,7 +291,7 @@ public class TaskEditor extends BorderPane {
         boolean indicateRequired = false;
 
         var namePredicate = (Predicate<String>) s -> {
-            return mManager.isValid(mTask.getName(), s);
+            return mTask != null && mManager.isValid(mTask.getName(), s);
         };
 
         var validationSupport = new ValidationSupport();
@@ -299,5 +306,4 @@ public class TaskEditor extends BorderPane {
 
         validationSupport.initInitialDecoration();
     }
-
 }

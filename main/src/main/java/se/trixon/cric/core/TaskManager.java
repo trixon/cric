@@ -43,7 +43,7 @@ public class TaskManager {
         mIdToItemProperty.setValue(FXCollections.observableHashMap());
 
         mIdToItemProperty.get().addListener((MapChangeListener.Change<? extends String, ? extends Task> change) -> {
-            var values = new ArrayList<Task>(getIdToItem().values());
+            var values = new ArrayList<>(getIdToItem().values());
             values.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
             getItems().setAll(values);
         });
@@ -111,14 +111,6 @@ public class TaskManager {
 
     public ObjectProperty<ObservableList<Task>> itemsProperty() {
         return mItemsProperty;
-    }
-
-    public void log(String message) {
-        System.out.println(message);
-    }
-
-    public Task save() {
-        return null;
     }
 
     private static class Holder {

@@ -38,7 +38,7 @@ public class Task implements EditableListItem {
     private boolean mBindServices;
     private transient final ResourceBundle mBundle = SystemHelper.getBundle(Task.class, "Bundle");
     @SerializedName("compress")
-    private int mCompress;
+    private int mCompress = 6;
     @SerializedName("description")
     private String mDescription;
     @SerializedName("endian")
@@ -103,7 +103,7 @@ public class Task implements EditableListItem {
             command.add("--strip-debug");
         }
 
-        command.add(String.format("--compress=%d", mCompress));
+        command.add(String.format("--compress zip-%d", mCompress));
 
         if (mEndian > 0) {
             command.add(String.format("--endian %s", new String[]{"", "little", "big"}[mEndian]));

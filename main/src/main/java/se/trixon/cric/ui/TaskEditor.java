@@ -22,7 +22,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
-import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -33,7 +32,8 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Priority;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javax.swing.JFileChooser;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -141,15 +141,11 @@ public class TaskEditor extends BorderPane {
     }
 
     private void createUI() {
-        var gridPane = new GridPane();
-        var headerGridPane = new GridPane();
+        var gp = new GridPane(FxHelper.getUIScaled(8), 0);
         //gridPane.setGridLinesVisible(true);
-        gridPane.setHgap(8);
-        headerGridPane.setHgap(8);
 
         var nameLabel = new Label(Dict.NAME.toString());
         var descLabel = new Label(Dict.DESCRIPTION.toString());
-        var launcherLabel = new Label("launcher");
 
         mNameTextField = new TextField();
         mDescTextField = new TextField();
@@ -171,55 +167,66 @@ public class TaskEditor extends BorderPane {
         mStripDebugCheckBox.setTooltip(new Tooltip("Strip debug information"));
 
         mCompressComboBox = new ComboBox();
-        mCompressComboBox.getItems().setAll("No compression", "Constant string sharing", "ZIP");
+        mCompressComboBox.getItems().setAll(
+                "zip-0 no compression",
+                "zip-1",
+                "zip-2",
+                "zip-3",
+                "zip-4",
+                "zip-5",
+                "zip-6 default compression",
+                "zip-7",
+                "zip-8",
+                "zip-9 best compression"
+        );
+
         mEndianComboBox = new ComboBox();
         mEndianComboBox.getItems().setAll("Native", "Little", "Big");
 
         int row = 0;
+        gp.addRow(row++, nameLabel, descLabel);
+        gp.addRow(row++, mNameTextField, mDescTextField);
+        gp.addRow(row++, mJlinkChooserPane, mOutputChooserPane);
 
-        headerGridPane.add(nameLabel, 0, row, 1, 1);
-        headerGridPane.add(descLabel, 1, row, 1, 1);
-        headerGridPane.add(mNameTextField, 0, ++row, 1, 1);
-        headerGridPane.add(mDescTextField, 1, row, 1, 1);
-        headerGridPane.add(mJlinkChooserPane, 0, ++row, 1, 1);
-        headerGridPane.add(mOutputChooserPane, 1, row, 1, 1);
-        headerGridPane.add(launcherLabel, 0, ++row, GridPane.REMAINING, 1);
-        headerGridPane.add(mLauncherTextField, 0, ++row, GridPane.REMAINING, 1);
+        var compressLabel = new Label("compress");
+        var endianLabel = new Label("endian");
+        var launcherLabel = new Label("launcher");
 
-        gridPane.add(headerGridPane, 0, row = 0, GridPane.REMAINING, 1);
+        var box1 = new HBox(FxHelper.getUIScaled(8),
+                new VBox(compressLabel, mCompressComboBox),
+                new VBox(endianLabel, mEndianComboBox)
+        );
+        var box2 = new VBox(launcherLabel, mLauncherTextField);
 
-        var subPane = new GridPane();
-        //subPane.setGridLinesVisible(true);
-        subPane.add(new Label("compress"), 5, 0);
-        subPane.add(new Label("endian"), 6, 0);
-        subPane.addRow(1, mBindServicesCheckBox, mIgnoreSigningCheckBox, mNoHeadersCheckBox, mNoManPagesCheckBox, mStripDebugCheckBox, mCompressComboBox, mEndianComboBox);
-        subPane.setHgap(8);
-        subPane.setMaxWidth(Double.MAX_VALUE);
+        gp.add(box1, 0, row);
+        gp.add(box2, 1, row++);
 
-        gridPane.add(subPane, 0, ++row, 1, 1);
+        var box3 = new HBox(FxHelper.getUIScaled(16),
+                mBindServicesCheckBox, mIgnoreSigningCheckBox, mNoHeadersCheckBox, mNoManPagesCheckBox, mStripDebugCheckBox
+        );
+
+        gp.add(box3, 0, row++, GridPane.REMAINING, 1);
 
         var addTab = new Tab("+");
         addTab.setClosable(false);
         mTabPane = new TabPane(addTab);
 
-        var rowInsets = new Insets(8, 0, 0, 0);
-        FxHelper.setPadding(rowInsets,
+        FxHelper.setPadding(FxHelper.getUIScaledInsets(8, 0, 0, 0),
                 mJlinkChooserPane,
                 mOutputChooserPane,
-                launcherLabel,
-                subPane,
+                compressLabel,
+                endianLabel,
+                launcherLabel
+        );
+
+        FxHelper.setPadding(FxHelper.getUIScaledInsets(16, 0, 0, 0),
+                box3,
                 mTabPane
         );
 
-        GridPane.setHgrow(mNameTextField, Priority.ALWAYS);
-        GridPane.setHgrow(mDescTextField, Priority.ALWAYS);
-        GridPane.setHgrow(subPane, Priority.ALWAYS);
+        FxHelper.autoSizeColumn(gp, 2);
 
-        GridPane.setFillWidth(mNameTextField, true);
-        GridPane.setFillWidth(mDescTextField, true);
-        GridPane.setFillWidth(subPane, true);
-
-        setTop(gridPane);
+        setTop(gp);
         setCenter(mTabPane);
     }
 

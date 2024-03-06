@@ -29,8 +29,6 @@ import se.trixon.almond.util.Dict;
 import se.trixon.almond.util.fx.FxHelper;
 import se.trixon.almond.util.fx.control.editable_list.EditableList;
 import se.trixon.almond.util.swing.SwingHelper;
-import se.trixon.cric.Cric;
-import static se.trixon.cric.Cric.KEY_INFO;
 import se.trixon.cric.core.ExecutorManager;
 import se.trixon.cric.core.StorageManager;
 import static se.trixon.cric.core.StorageManager.GSON;
@@ -43,19 +41,26 @@ import se.trixon.cric.core.TaskManager;
  */
 public class TaskListEditor {
 
-    private FxDialogPanel mDialogPanel;
     private EditableList<Task> mEditableList;
     private final ExecutorManager mExecutorManager = ExecutorManager.getInstance();
-    private final Scene mScene;
+    private final TaskInfoPane mTaskInfoPane;
+    private final Scene mTaskInfoScene;
     private final TaskEditor mTaskEditor;
+    private final Scene mTaskEditorScene;
     private final TaskManager mTaskManager = TaskManager.getInstance();
 
     public TaskListEditor() {
         init();
 
+        var insets = FxHelper.getUIScaledInsets(8, 8, 0, 8);
+
         mTaskEditor = new TaskEditor();
-        mTaskEditor.setPadding(FxHelper.getUIScaledInsets(8, 8, 0, 8));
-        mScene = new Scene(mTaskEditor);
+        mTaskEditor.setPadding(insets);
+        mTaskEditorScene = new Scene(mTaskEditor);
+
+        mTaskInfoPane = new TaskInfoPane();
+        mTaskInfoPane.setPadding(insets);
+        mTaskInfoScene = new Scene(mTaskInfoPane);
     }
 
     public EditableList<Task> getEditableList() {
@@ -63,18 +68,18 @@ public class TaskListEditor {
     }
 
     void editTask(String title, Task task) {
-        mDialogPanel = new FxDialogPanel() {
+        var dialogPanel = new FxDialogPanel() {
             @Override
             protected void fxConstructor() {
-                setScene(mScene);
+                setScene(mTaskEditorScene);
             }
         };
 
-        mDialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(700, 480));
-        mDialogPanel.initFx();
-        var d = new DialogDescriptor(mDialogPanel, Objects.toString(title, Dict.EDIT.toString()));
+        dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(700, 480));
+        dialogPanel.initFx();
+        var d = new DialogDescriptor(dialogPanel, Objects.toString(title, Dict.EDIT.toString()));
         d.setValid(false);
-        mDialogPanel.setNotifyDescriptor(d);
+        dialogPanel.setNotifyDescriptor(d);
         mTaskEditor.load(task, d);
 
         SwingUtilities.invokeLater(() -> {
@@ -84,6 +89,25 @@ public class TaskListEditor {
                     postEdit(mTaskManager.getById(editedItem.getId()));
                 });
             }
+        });
+    }
+
+    private void displayInfo(Task task) {
+        mTaskInfoPane.load(task);
+        var dialogPanel = new FxDialogPanel() {
+            @Override
+            protected void fxConstructor() {
+                setScene(mTaskInfoScene);
+            }
+        };
+
+        dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(700, 480));
+        dialogPanel.initFx();
+        var d = new DialogDescriptor(dialogPanel, Dict.INFORMATION.toString());
+        dialogPanel.setNotifyDescriptor(d);
+
+        SwingHelper.runLater(() -> {
+            DialogDisplayer.getDefault().notify(d);
         });
     }
 
@@ -118,7 +142,7 @@ public class TaskListEditor {
                     return mTaskManager.getById(uuid);
                 })
                 .setOnInfo(task -> {
-                    Cric.getGlobalState().put(KEY_INFO, task.getOutputAsString());
+                    displayInfo(task);
                 })
                 .setOnStart(task -> {
                     mExecutorManager.requestStart(task);

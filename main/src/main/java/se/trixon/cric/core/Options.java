@@ -33,16 +33,12 @@ public class Options extends OptionsBase {
     private static final String KEY_JLINK_DEBUG = "jlink.debug";
     private static final String KEY_JLINK_PATH = "jlink.path";
     private static final String KEY_JLINK_VERBOSE = "jlink.verbose";
-    private static final String KEY_UI_NIGHTMODE = "ui.nightmode";
-    private static final String KEY_UI_WORDWRAP = "ui.wordwrap";
     private final BooleanProperty mJlinkDebugProperty = new SimpleBooleanProperty();
     private final StringProperty mJlinkPathProperty = new SimpleStringProperty();
     private final BooleanProperty mJlinkVerboseProperty = new SimpleBooleanProperty();
-    private final BooleanProperty mNightModeProperty = new SimpleBooleanProperty();
-    private final BooleanProperty mWordWrapProperty = new SimpleBooleanProperty();
 
     public static Options getInstance() {
-        return OptionsHolder.INSTANCE;
+        return Holder.INSTANCE;
     }
 
     private Options() {
@@ -51,9 +47,6 @@ public class Options extends OptionsBase {
         mJlinkPathProperty.set(get(KEY_JLINK_PATH, "/path/to/jlink"));
         mJlinkDebugProperty.set(is(KEY_JLINK_DEBUG, false));
         mJlinkVerboseProperty.set(is(KEY_JLINK_VERBOSE, true));
-
-        mNightModeProperty.set(is(KEY_UI_NIGHTMODE, true));
-        mWordWrapProperty.set(is(KEY_UI_WORDWRAP, true));
 
         initListeners();
     }
@@ -70,14 +63,6 @@ public class Options extends OptionsBase {
         return mJlinkVerboseProperty.get();
     }
 
-    public boolean isNightMode() {
-        return mNightModeProperty.get();
-    }
-
-    public boolean isWordWrap() {
-        return mWordWrapProperty.get();
-    }
-
     public BooleanProperty jlinkDebugProperty() {
         return mJlinkDebugProperty;
     }
@@ -88,10 +73,6 @@ public class Options extends OptionsBase {
 
     public BooleanProperty jlinkVerboseProperty() {
         return mJlinkVerboseProperty;
-    }
-
-    public BooleanProperty nightModeProperty() {
-        return mNightModeProperty;
     }
 
     public void setJlinkDebug(boolean debug) {
@@ -106,14 +87,6 @@ public class Options extends OptionsBase {
         mJlinkVerboseProperty.set(debug);
     }
 
-    public void setNightMode(boolean nightMode) {
-        mNightModeProperty.set(nightMode);
-    }
-
-    public BooleanProperty wordWrapProperty() {
-        return mWordWrapProperty;
-    }
-
     private void initListeners() {
         ChangeListener<Object> changeListener = (observable, oldValue, newValue) -> {
             save();
@@ -122,19 +95,15 @@ public class Options extends OptionsBase {
         mJlinkPathProperty.addListener(changeListener);
         mJlinkDebugProperty.addListener(changeListener);
         mJlinkVerboseProperty.addListener(changeListener);
-        mNightModeProperty.addListener(changeListener);
-        mWordWrapProperty.addListener(changeListener);
     }
 
     private void save() {
         put(KEY_JLINK_PATH, getJlinkPath());
         put(KEY_JLINK_DEBUG, isJlinkDebug());
         put(KEY_JLINK_VERBOSE, isJlinkVerbose());
-        put(KEY_UI_NIGHTMODE, isNightMode());
-        put(KEY_UI_WORDWRAP, isWordWrap());
     }
 
-    private static class OptionsHolder {
+    private static class Holder {
 
         private static final Options INSTANCE = new Options();
     }

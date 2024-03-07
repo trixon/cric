@@ -76,13 +76,14 @@ public class Executor implements Runnable {
             mOutputHelper.printSectionHeader(OutputLineMode.INFO, Dict.START.toString(), Dict.TASK.toLower(), mTask.getName());
             mMainFoldHandle = IOFolding.startFold(mInputOutput, true);
 
-            if (!mTask.isValid()) {//TODO and dest dir too
-                mInputOutput.getErr().println(mTask.getValidationError());
-                jobEnded(OutputLineMode.ERROR, Dict.FAILED.toString());
-                mInputOutput.getErr().println(String.format("\n\n%s", Dict.JOB_FAILED.toString()));
-
-                return;
-            }
+//            if (!mTask.isValid()) {//TODO and dest dir too
+//                mInputOutput.getErr().println(mTask.getValidationError());
+//                jobEnded(OutputLineMode.ERROR, Dict.FAILED.toString());
+//                mInputOutput.getErr().println(String.format("\n\n%s", Dict.JOB_FAILED.toString()));
+//
+//                return;
+//            }
+            jobEnded(OutputLineMode.ERROR, Dict.FAILED.toString());
 
             mProgressHandle.finish();
             ExecutorManager.getInstance().getExecutors().remove(mTask.getId());

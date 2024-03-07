@@ -15,12 +15,20 @@
  */
 package se.trixon.cric.core;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.ResourceBundle;
-import org.openide.util.Exceptions;
+import javafx.scene.Scene;
+import javax.swing.JButton;
+import javax.swing.SwingUtilities;
+import org.openide.DialogDescriptor;
+import org.openide.DialogDisplayer;
 import org.openide.util.NbBundle;
 import org.openide.windows.InputOutput;
+import se.trixon.almond.nbp.dialogs.NbMessage;
+import se.trixon.almond.nbp.fx.FxDialogPanel;
+import se.trixon.almond.util.Dict;
+import se.trixon.almond.util.swing.SwingHelper;
+import se.trixon.cric.ui.TaskInfoPane;
 
 /**
  *
@@ -44,14 +52,46 @@ public class ExecutorManager {
     }
 
     public void requestStart(Task task) {
-        if (mInputOutput != null) {
-            try {
-                mInputOutput.getOut().reset();
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
+        if (mExecutors.containsKey(task.getId())) {
+            NbMessage.error(Dict.Dialog.TITLE_TASK_RUNNING.toString(), Dict.Dialog.MESSAGE_TASK_RUNNING.toString());
+        } else {
+            var taskInfoPane = new TaskInfoPane(task);
+            var dialogPanel = new FxDialogPanel() {
+                @Override
+                protected void fxConstructor() {
+                    setScene(new Scene(taskInfoPane));
+                }
+            };
+            dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(640, 300));
 
+            SwingUtilities.invokeLater(() -> {
+                var title = Dict.Dialog.TITLE_TASK_RUN_S.toString().formatted(task.getName());
+                var runButton = new JButton(Dict.RUN.toString());
+                var d = new DialogDescriptor(
+                        dialogPanel,
+                        title,
+                        true,
+                        new Object[]{Dict.CANCEL.toString(), runButton},
+                        runButton,
+                        0,
+                        null,
+                        null
+                );
+
+                d.setValid(false);
+                dialogPanel.setNotifyDescriptor(d);
+                dialogPanel.initFx(null);
+                SwingHelper.runLaterDelayed(100, () -> runButton.requestFocus());
+                var result = DialogDisplayer.getDefault().notify(d);
+
+                if (result == runButton) {
+                    start(task);
+                }
+            });
+        }
+    }
+
+    public void start(Task task) {
         var executor = new Executor(task);
         mExecutors.put(task.getId(), executor);
         executor.run();

@@ -45,8 +45,6 @@ public class TaskListEditor {
     private EditableList<Task> mEditableList;
     private final ExecutorManager mExecutorManager = ExecutorManager.getInstance();
     private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(740, 480);
-    private final TaskInfoPane mTaskInfoPane;
-    private final Scene mTaskInfoScene;
     private final TaskEditor mTaskEditor;
     private final Scene mTaskEditorScene;
     private final TaskManager mTaskManager = TaskManager.getInstance();
@@ -59,10 +57,6 @@ public class TaskListEditor {
         mTaskEditor = new TaskEditor();
         mTaskEditor.setPadding(insets);
         mTaskEditorScene = new Scene(mTaskEditor);
-
-        mTaskInfoPane = new TaskInfoPane();
-        mTaskInfoPane.setPadding(insets);
-        mTaskInfoScene = new Scene(mTaskInfoPane);
     }
 
     public EditableList<Task> getEditableList() {
@@ -91,34 +85,6 @@ public class TaskListEditor {
                     postEdit(mTaskManager.getById(editedItem.getId()));
                 });
             }
-        });
-    }
-
-    private void displayInfo(Task task) {
-        mTaskInfoPane.load(task);
-        var dialogPanel = new FxDialogPanel() {
-            @Override
-            protected void fxConstructor() {
-                setScene(mTaskInfoScene);
-            }
-        };
-
-        dialogPanel.setPreferredSize(mPreferredSize);
-        dialogPanel.initFx();
-        var d = new DialogDescriptor(
-                dialogPanel,
-                Dict.INFORMATION.toString(), true,
-                new Object[]{Dict.CLOSE.toString()},
-                Dict.CLOSE.toString(),
-                0,
-                null,
-                null
-        );
-
-        dialogPanel.setNotifyDescriptor(d);
-
-        SwingHelper.runLater(() -> {
-            DialogDisplayer.getDefault().notify(d);
         });
     }
 
@@ -151,9 +117,6 @@ public class TaskListEditor {
                     StorageManager.save();
 
                     return mTaskManager.getById(uuid);
-                })
-                .setOnInfo(task -> {
-                    displayInfo(task);
                 })
                 .setOnStart(task -> {
                     mExecutorManager.requestStart(task);

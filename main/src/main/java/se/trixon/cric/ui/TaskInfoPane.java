@@ -19,6 +19,7 @@ import java.util.HashSet;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -45,6 +46,7 @@ public class TaskInfoPane extends VBox {
         getChildren().setAll(
                 mNameLabel,
                 mDescLabel,
+                new Separator(),
                 mSummaryDetails
         );
 
@@ -53,6 +55,11 @@ public class TaskInfoPane extends VBox {
 
         mNameLabel.setFont(Font.font(fontFamily, FontWeight.BOLD, fontSize * 1.6));
         mDescLabel.setFont(Font.font(fontFamily, FontWeight.NORMAL, fontSize * 1.3));
+    }
+
+    public TaskInfoPane(Task task) {
+        this();
+        load(task);
     }
 
     void load(Task task) {

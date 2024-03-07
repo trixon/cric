@@ -71,6 +71,10 @@ public class TaskInfoPane extends VBox {
 
     public class SummaryDetails extends TextFlow {
 
+        private final Text mCompressHeaderText = new Text("\n\ncompress  ");
+        private final Text mCompressText = new Text();
+        private final Text mEndianHeaderText = new Text("\t\tendian  ");
+        private final Text mEndianText = new Text();
         private final Text mJLinkHeaderText = new Text("\n\njlink\n");
         private final Text mJLinkText = new Text();
         private final Text mLauncherHeaderText = new Text("\nlauncher\n");
@@ -92,12 +96,17 @@ public class TaskInfoPane extends VBox {
             sb.append(getBallotBox(task.isStripDebug())).append(" strip-debug");
 
             mOptionsBallotsText.setText(sb.toString());
+
+            mEndianText.setText(task.getEndianString());
+            mCompressText.setText(task.getCompressString());
             mJLinkText.setText(task.getJlinkString());
             mOutputText.setText(task.getOutput().getPath());
             mLauncherText.setText(task.getLauncher());
 
             getChildren().setAll(
                     mOptionsBallotsText,
+                    mCompressHeaderText, mCompressText,
+                    mEndianHeaderText, mEndianText,
                     mJLinkHeaderText,
                     mJLinkText,
                     mLauncherHeaderText,
@@ -107,12 +116,16 @@ public class TaskInfoPane extends VBox {
             );
 
             var headerTexts = new HashSet<Text>();
+            headerTexts.add(mCompressHeaderText);
+            headerTexts.add(mEndianHeaderText);
             headerTexts.add(mJLinkHeaderText);
             headerTexts.add(mOutputHeaderText);
             headerTexts.add(mLauncherHeaderText);
 
             var bodyTexts = new HashSet<Text>();
             bodyTexts.add(mOptionsBallotsText);
+            bodyTexts.add(mCompressText);
+            bodyTexts.add(mEndianText);
             bodyTexts.add(mJLinkText);
             bodyTexts.add(mOutputText);
             bodyTexts.add(mLauncherText);

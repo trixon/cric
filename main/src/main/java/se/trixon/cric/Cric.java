@@ -52,6 +52,9 @@ public class Cric {
 
     public static void displaySystemInformation() {
         sGlobalState.put(KEY_INFO, SystemHelper.getSystemInfo());
+        var io = IOProvider.getDefault().getIO(Dict.INFORMATION.toString(), false);
+        var outputHelper = new OutputHelper(Dict.INFORMATION.toString(), io, false);
+        outputHelper.println(OutputLineMode.ERROR, "\nWelcome to CRIC, the Custom Runtime Image Creator (with cross-targeting) ");
     }
 
     public static GlobalState getGlobalState() {

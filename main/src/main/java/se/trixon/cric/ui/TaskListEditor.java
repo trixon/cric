@@ -90,6 +90,7 @@ public class TaskListEditor {
 
     private void init() {
         mEditableList = new NbEditableList.Builder<Task>()
+                .setIconSize(FxHelper.getUIScaled(22))
                 .setItemSingular(Dict.TASK.toString())
                 .setItemPlural(Dict.TASKS.toString())
                 .setItemsProperty(mTaskManager.itemsProperty())

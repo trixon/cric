@@ -140,12 +140,20 @@ public class Task implements EditableListItem {
         return mCompress;
     }
 
+    public String getCompressString() {
+        return "Zip-%d".formatted(mCompress);
+    }
+
     public String getDescription() {
         return StringUtils.defaultString(mDescription);
     }
 
     public int getEndian() {
         return mEndian;
+    }
+
+    public String getEndianString() {
+        return new String[]{"Native", "Little", "Big"}[mEndian];
     }
 
     public String getId() {

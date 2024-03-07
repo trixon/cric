@@ -72,6 +72,7 @@ public class TaskEditor extends BorderPane {
     private TabPane mTabPane;
     private ChangeListener<Tab> mTabSelectionListener;
     private Task mTask;
+    private final ValidationSupport mValidationSupport = new ValidationSupport();
 
     public TaskEditor() {
         createUI();
@@ -109,6 +110,7 @@ public class TaskEditor extends BorderPane {
 
         Platform.runLater(() -> {
             mNameTextField.requestFocus();
+            mValidationSupport.revalidate();
         });
     }
 
@@ -301,16 +303,15 @@ public class TaskEditor extends BorderPane {
             return mTask != null && mManager.isValid(mTask.getName(), s);
         };
 
-        var validationSupport = new ValidationSupport();
-        validationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createEmptyValidator(text_is_required));
-        validationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createPredicateValidator(namePredicate, text_is_required));
+        mValidationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createEmptyValidator(text_is_required));
+        mValidationSupport.registerValidator(mNameTextField, indicateRequired, Validator.createPredicateValidator(namePredicate, text_is_required));
 
-        validationSupport.validationResultProperty().addListener((p, o, n) -> {
+        mValidationSupport.validationResultProperty().addListener((p, o, n) -> {
             if (mDialogDescriptor != null) {
-                mDialogDescriptor.setValid(!validationSupport.isInvalid());
+                mDialogDescriptor.setValid(!mValidationSupport.isInvalid());
             }
         });
 
-        validationSupport.initInitialDecoration();
+        mValidationSupport.initInitialDecoration();
     }
 }

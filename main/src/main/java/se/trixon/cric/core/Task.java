@@ -157,7 +157,7 @@ public class Task implements EditableListItem {
     }
 
     public String getJlinkString() {
-        return StringUtils.defaultIfBlank(getJlink().getPath(), mOptions.getJlinkPath());
+        return getJlink().getPath();
     }
 
     public long getLastRun() {

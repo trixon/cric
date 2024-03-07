@@ -17,8 +17,6 @@ package se.trixon.cric.core;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
 import org.openide.util.NbPreferences;
 import se.trixon.almond.util.OptionsBase;
@@ -31,10 +29,8 @@ import se.trixon.cric.Cric;
 public class Options extends OptionsBase {
 
     private static final String KEY_JLINK_DEBUG = "jlink.debug";
-    private static final String KEY_JLINK_PATH = "jlink.path";
     private static final String KEY_JLINK_VERBOSE = "jlink.verbose";
     private final BooleanProperty mJlinkDebugProperty = new SimpleBooleanProperty();
-    private final StringProperty mJlinkPathProperty = new SimpleStringProperty();
     private final BooleanProperty mJlinkVerboseProperty = new SimpleBooleanProperty();
 
     public static Options getInstance() {
@@ -44,15 +40,10 @@ public class Options extends OptionsBase {
     private Options() {
         setPreferences(NbPreferences.forModule(Cric.class));
 
-        mJlinkPathProperty.set(get(KEY_JLINK_PATH, "/path/to/jlink"));
         mJlinkDebugProperty.set(is(KEY_JLINK_DEBUG, false));
         mJlinkVerboseProperty.set(is(KEY_JLINK_VERBOSE, true));
 
         initListeners();
-    }
-
-    public String getJlinkPath() {
-        return mJlinkPathProperty.get();
     }
 
     public boolean isJlinkDebug() {
@@ -67,20 +58,12 @@ public class Options extends OptionsBase {
         return mJlinkDebugProperty;
     }
 
-    public StringProperty jlinkPathProperty() {
-        return mJlinkPathProperty;
-    }
-
     public BooleanProperty jlinkVerboseProperty() {
         return mJlinkVerboseProperty;
     }
 
     public void setJlinkDebug(boolean debug) {
         mJlinkDebugProperty.set(debug);
-    }
-
-    public void setJlinkPath(String jlink) {
-        mJlinkPathProperty.set(jlink);
     }
 
     public void setJlinkVerbose(boolean debug) {
@@ -92,13 +75,11 @@ public class Options extends OptionsBase {
             save();
         };
 
-        mJlinkPathProperty.addListener(changeListener);
         mJlinkDebugProperty.addListener(changeListener);
         mJlinkVerboseProperty.addListener(changeListener);
     }
 
     private void save() {
-        put(KEY_JLINK_PATH, getJlinkPath());
         put(KEY_JLINK_DEBUG, isJlinkDebug());
         put(KEY_JLINK_VERBOSE, isJlinkVerbose());
     }

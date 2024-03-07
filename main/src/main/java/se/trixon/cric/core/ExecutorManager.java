@@ -15,6 +15,7 @@
  */
 package se.trixon.cric.core;
 
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.scene.Scene;
@@ -39,6 +40,7 @@ public class ExecutorManager {
     private final ResourceBundle mBundle = NbBundle.getBundle(ExecutorManager.class);
     private final HashMap<String, Executor> mExecutors = new HashMap<>();
     private InputOutput mInputOutput;
+    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(800, 600);
 
     public static ExecutorManager getInstance() {
         return Holder.INSTANCE;
@@ -62,7 +64,7 @@ public class ExecutorManager {
                     setScene(new Scene(taskInfoPane));
                 }
             };
-            dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(640, 300));
+            dialogPanel.setPreferredSize(mPreferredSize);
 
             SwingUtilities.invokeLater(() -> {
                 var title = Dict.Dialog.TITLE_TASK_RUN_S.toString().formatted(task.getName());

@@ -8,4 +8,4 @@ Icon=${SNAP}/meta/gui/cric.png
 Terminal=false
 Categories=Development;
 StartupNotify=true
-StartupWMClass=se.trixon.cric.app
+StartupWMClass=CRIC

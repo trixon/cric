@@ -1,7 +1,7 @@
 name: cric
 title: CRIC
-base: core18
-version: 1.0.2
+base: core22
+version: 'REPLACE_WITH_VERSION'
 summary: A Java jlink ui - a Custom Runtime Image Creator
 description: |
     **CRIC** is a gui for the Java jlink command.
@@ -20,44 +20,31 @@ license: Apache-2.0
 
 apps:
   cric:
-    command: bin/launcher
-    extensions:
-        - gnome-3-34
+    command: cric/bin/cric
+    extensions: [gnome]
     plugs:
         - home
         - removable-media
+        - network
 
 parts:
   cric:
     plugin: dump
-    #source: https://github.com/trixon/cric/releases/download/v$SNAPCRAFT_PROJECT_VERSION/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
-    source: /root/project/cric-$SNAPCRAFT_PROJECT_VERSION-bin.zip
+    #source: https://github.com/trixon/cric/releases/download/v$SNAPCRAFT_PROJECT_VERSION/cric-$SNAPCRAFT_PROJECT_VERSION-linux.zip
+    source: /root/project/cric-$SNAPCRAFT_PROJECT_VERSION-linux.zip
     source-type: zip
-    organize:
-      '*' : cric
 
-  launcher:
-    plugin: dump
-    source: snap/local
-    organize:
-      'launcher': 'bin/'
-
-  apt:
+  config:
+    after: [cric]
     plugin: nil
-    override-build: |
-        apt install openjdk-11-jdk -y
-
-  jlink:
-    plugin: nil
-    after: [apt]
-    override-build: |
-        rm -rf $SNAPCRAFT_PRIME/jre
-
-        jlink --no-header-files \
-            --no-man-pages \
-            --strip-debug \
-            --compress=1 \
-            --add-modules java.base,java.datatransfer,java.desktop,java.logging,java.prefs,java.sql,java.xml,jdk.jfr,jdk.unsupported,jdk.unsupported.desktop \
-            --output $SNAPCRAFT_PRIME/yaya/jre
-
-        strip -p --strip-unneeded $SNAPCRAFT_PRIME/jre/lib/server/libjvm.so
+    override-prime: |
+      craftctl default
+      sed -i 's/${HOME}\/.${APPNAME}/${SNAP_USER_COMMON}\/.cric/' /root/prime/cric/bin/cric
+      sed -i 's/${HOME}\/.cache\/${APPNAME}/${SNAP_USER_COMMON}\/.cache\/cric/' /root/prime/cric/bin/cric
+      rm -r /root/prime/cric/platform/modules/lib/i386
+      rm -r /root/prime/cric/platform/modules/lib/x86
+      rm /root/prime/cric/platform/lib/*.dll
+      rm /root/prime/cric/platform/lib/*.exe
+      
+lint:
+  ignore: [library]

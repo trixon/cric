@@ -44,7 +44,7 @@ public class TaskListEditor {
 
     private EditableList<Task> mEditableList;
     private final ExecutorManager mExecutorManager = ExecutorManager.getInstance();
-    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(740, 480);
+    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(800, 600);
     private final TaskEditor mTaskEditor;
     private final Scene mTaskEditorScene;
     private final TaskManager mTaskManager = TaskManager.getInstance();

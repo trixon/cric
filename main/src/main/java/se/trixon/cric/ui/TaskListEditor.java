@@ -15,6 +15,7 @@
  */
 package se.trixon.cric.ui;
 
+import java.awt.Dimension;
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class TaskListEditor {
 
     private EditableList<Task> mEditableList;
     private final ExecutorManager mExecutorManager = ExecutorManager.getInstance();
+    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(740, 480);
     private final TaskInfoPane mTaskInfoPane;
     private final Scene mTaskInfoScene;
     private final TaskEditor mTaskEditor;
@@ -75,7 +77,7 @@ public class TaskListEditor {
             }
         };
 
-        dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(700, 480));
+        dialogPanel.setPreferredSize(mPreferredSize);
         dialogPanel.initFx();
         var d = new DialogDescriptor(dialogPanel, Objects.toString(title, Dict.EDIT.toString()));
         d.setValid(false);
@@ -101,9 +103,18 @@ public class TaskListEditor {
             }
         };
 
-        dialogPanel.setPreferredSize(SwingHelper.getUIScaledDim(700, 480));
+        dialogPanel.setPreferredSize(mPreferredSize);
         dialogPanel.initFx();
-        var d = new DialogDescriptor(dialogPanel, Dict.INFORMATION.toString());
+        var d = new DialogDescriptor(
+                dialogPanel,
+                Dict.INFORMATION.toString(), true,
+                new Object[]{Dict.CLOSE.toString()},
+                Dict.CLOSE.toString(),
+                0,
+                null,
+                null
+        );
+
         dialogPanel.setNotifyDescriptor(d);
 
         SwingHelper.runLater(() -> {

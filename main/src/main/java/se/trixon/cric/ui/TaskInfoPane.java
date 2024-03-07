@@ -73,17 +73,16 @@ public class TaskInfoPane extends VBox {
         private final Text mOutputText = new Text();
 
         public SummaryDetails() {
-            setPadding(new Insets(FxHelper.getUIScaled(8)));
         }
 
         void load(Task task) {
             var sb = new StringBuilder("\n");
             var separator = ", ";
-            sb.append(getBallotBox(task.isBindServices())).append("bind-services").append(separator);
-            sb.append(getBallotBox(task.isIgnoreSigning())).append("ignore-signing-information").append(separator);
-            sb.append(getBallotBox(task.isNoHeaders())).append("no-header-files").append(separator);
-            sb.append(getBallotBox(task.isNoManPages())).append("no-man-pages").append(separator);
-            sb.append(getBallotBox(task.isStripDebug())).append("strip-debug");
+            sb.append(getBallotBox(task.isBindServices())).append(" bind-services").append(separator);
+            sb.append(getBallotBox(task.isIgnoreSigning())).append(" ignore-signing-information").append(separator);
+            sb.append(getBallotBox(task.isNoHeaders())).append(" no-header-files").append(separator);
+            sb.append(getBallotBox(task.isNoManPages())).append(" no-man-pages").append(separator);
+            sb.append(getBallotBox(task.isStripDebug())).append(" strip-debug");
 
             mOptionsBallotsText.setText(sb.toString());
             mJLinkText.setText(task.getJlinkString());
@@ -142,9 +141,8 @@ public class TaskInfoPane extends VBox {
             }
         }
 
-        private String getBallotBox(boolean value) {
-//            return value ? "☑🗹 " : "☐ ";
-            return value ? "☑A " : "B ";
+        private char getBallotBox(boolean checked) {
+            return checked ? '◉' : '○';
         }
     }
 }

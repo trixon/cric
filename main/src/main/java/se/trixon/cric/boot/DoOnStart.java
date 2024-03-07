@@ -34,7 +34,7 @@ public class DoOnStart implements Runnable {
         System.setProperty("netbeans.winsys.no_help_in_dialogs", "true");
         System.setProperty("netbeans.winsys.no_toolbars", "true");
 
-        NbHelper.setLafDefault("Dark");
+        NbHelper.setLafDefault("Light");
         NbHelper.setLafAccentColor("#ff453a");
         NbHelper.initNightModeIfNeeded();
 

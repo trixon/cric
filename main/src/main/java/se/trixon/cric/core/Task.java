@@ -103,7 +103,8 @@ public class Task implements EditableListItem {
             command.add("--strip-debug");
         }
 
-        command.add(String.format("--compress zip-%d", mCompress));
+        command.add("--compress");
+        command.add("zip-%d".formatted(mCompress));
 
         if (mEndian > 0) {
             command.add(String.format("--endian %s", new String[]{"", "little", "big"}[mEndian]));
@@ -130,6 +131,8 @@ public class Task implements EditableListItem {
         command.add("--output");
         command.add(mOutput.getPath());
 
+        //command.add("--save-opts");
+        //command.add("%s/saved-opts".formatted(mOutput.getPath()));
         return command;
     }
 

@@ -59,3 +59,5 @@ nbdist/
 hs_err_pid*
 
 # End of https://www.gitignore.io/api/java,linux,maven,netbeans
+!/branding/src/main/nbm-branding/core/core.jar/
+!/branding/src/main/nbm-branding/modules/*

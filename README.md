@@ -8,8 +8,8 @@ The driver behind **CRIC** was the need to create cross-target custom runtime im
 CRIC is only tested on Linux so far.
 
 ## Main window
-![alt tag](https://trixon.se/wp-content/uploads/2021-01-30-115602_1294x722_scrot.png)
+![alt tag](https://trixon.se/files/screenshots/cric_appstream01.png)
 ## Profile editor
-![alt tag](https://trixon.se/wp-content/uploads/2021-01-30-120705_1021x630_scrot.png)
-## Options
-![alt tag](https://trixon.se/wp-content/uploads/2021-01-30-120734_400x260_scrot.png)
+![alt tag](https://trixon.se/files/screenshots/cric_appstream02.png)
+## Run
+![alt tag](https://trixon.se/files/screenshots/cric_appstream03.png)

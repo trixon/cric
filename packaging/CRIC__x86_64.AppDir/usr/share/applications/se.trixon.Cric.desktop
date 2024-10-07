@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=CRIC
+Comment=Custom Runtime Image Creator
+Exec=cric %F
+Icon=se.trixon.Cric
+Terminal=false
+Categories=Development;
+StartupNotify=true
+StartupWMClass=CRIC
+

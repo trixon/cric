@@ -10,7 +10,7 @@
 
     <groupId>se.trixon.cric</groupId>
     <artifactId>parent</artifactId>
-    <version>24.10</version>
+    <version>24.10-NEXT</version>
     <packaging>pom</packaging>
 
     <name>parent</name>

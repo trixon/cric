@@ -15,7 +15,7 @@
     <launchable type="desktop-id">se.trixon.Cric.desktop</launchable>
     <url type="homepage">https://trixon.se/projects/cric/</url>
     <url type="bugtracker">https://github.com/trixon/cric/issues</url>
-    <url type="donation">https://github.com/sponsors/trixon</url>
+    <url type="donation">https://buymeacoffee.com/trixon</url>
     <provides>
         <id>se.trixon.Cric.desktop</id>
     </provides>
@@ -43,6 +43,7 @@
     </screenshots>
 
     <releases>
+        <release date="2024-12-07" version="24.12"/>
         <release date="2024-10-07" version="24.10"/>
         <release date="2024-03-07" version="2.0.0"/>
         <release date="2024-02-09" version="1.0.1"/>

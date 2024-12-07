@@ -15,18 +15,13 @@ description: |
 grade: stable
 platforms:
     amd64:
-confinement: strict
+confinement: classic
 icon: snap/gui/cric.png
 license: Apache-2.0
 
 apps:
   cric:
     command: cric/bin/cric
-    extensions: [gnome]
-    plugs:
-        - home
-        - removable-media
-        - network
 
 parts:
   cric:

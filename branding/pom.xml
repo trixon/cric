@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.trixon.cric</groupId>
         <artifactId>parent</artifactId>
-        <version>24.12</version>
+        <version>24.12x</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 

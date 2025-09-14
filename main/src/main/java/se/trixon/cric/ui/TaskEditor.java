@@ -36,7 +36,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javax.swing.JFileChooser;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
 import org.openide.DialogDescriptor;
@@ -258,9 +258,9 @@ public class TaskEditor extends BorderPane {
                     try {
                         var content = FileUtils.readLines(file, Charset.forName("utf-8"));
                         for (var line : content) {
-                            if (StringUtils.startsWith(line, "MODULES=\"")) {
-                                line = StringUtils.removeStart(line, "MODULES=\"");
-                                line = StringUtils.removeEnd(line, "\"");
+                            if (Strings.CS.startsWith(line, "MODULES=\"")) {
+                                line = Strings.CS.removeStart(line, "MODULES=\"");
+                                line = Strings.CS.removeEnd(line, "\"");
                                 final var modules = line;
                                 mTabPane.getTabs().stream().filter(tab -> tab instanceof ModulePathTab).forEachOrdered(tab -> {
                                     ((ModulePathTab) tab).select(modules);

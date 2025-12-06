@@ -68,7 +68,7 @@ public class ModulePathTab extends Tab {
     ModulePath getModulePath() {
         var modulePath = new ModulePath();
         modulePath.setDirectory(mFileChooserPane.getPath());
-        modulePath.setSelectedModules(new TreeSet(mListSelectionView.getTargetItems()));
+        modulePath.setSelectedModules(new TreeSet<>(mListSelectionView.getTargetItems()));
 
         return modulePath;
     }

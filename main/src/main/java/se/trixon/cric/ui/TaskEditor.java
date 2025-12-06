@@ -56,10 +56,10 @@ import se.trixon.cric.core.TaskManager;
 public class TaskEditor extends BorderPane {
 
     private CheckBox mBindServicesCheckBox;
-    private ComboBox mCompressComboBox;
+    private ComboBox<String> mCompressComboBox;
     private TextField mDescTextField;
     private DialogDescriptor mDialogDescriptor;
-    private ComboBox mEndianComboBox;
+    private ComboBox<String> mEndianComboBox;
     private CheckBox mIgnoreSigningCheckBox;
     private FileChooserPaneSwingFx mJlinkChooserPane;
     private TextField mLauncherTextField;
@@ -168,7 +168,7 @@ public class TaskEditor extends BorderPane {
         mStripDebugCheckBox = new CheckBox("strip-debug");
         mStripDebugCheckBox.setTooltip(new Tooltip("Strip debug information"));
 
-        mCompressComboBox = new ComboBox();
+        mCompressComboBox = new ComboBox<>();
         mCompressComboBox.getItems().setAll(
                 "zip-0 no compression",
                 "zip-1",
@@ -182,7 +182,7 @@ public class TaskEditor extends BorderPane {
                 "zip-9 best compression"
         );
 
-        mEndianComboBox = new ComboBox();
+        mEndianComboBox = new ComboBox<>();
         mEndianComboBox.getItems().setAll("Native", "Little", "Big");
 
         int row = 0;

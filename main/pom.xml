@@ -4,7 +4,7 @@
     <parent>
         <groupId>se.trixon.cric</groupId>
         <artifactId>parent</artifactId>
-        <version>25.05x</version>
+        <version>25.12</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>main</artifactId>
@@ -153,7 +153,7 @@
         <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>11.2.2</version>
+            <version>11.2.3</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.openjfx</groupId>

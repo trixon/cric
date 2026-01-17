@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.trixon.cric</groupId>
         <artifactId>parent</artifactId>
-        <version>25.12</version>
+        <version>25.12x</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -89,10 +89,6 @@
                 <exclusion>
                     <groupId>org.netbeans.api</groupId>
                     <artifactId>org-netbeans-libs-jsr223</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.netbeans.modules</groupId>
-                    <artifactId>org-openide-util-ui-svg</artifactId>
                 </exclusion>
                 <exclusion>
                     <groupId>org.netbeans.modules</groupId>

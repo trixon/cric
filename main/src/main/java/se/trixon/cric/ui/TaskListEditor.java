@@ -15,6 +15,7 @@
  */
 package se.trixon.cric.ui;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.awt.Dimension;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -24,6 +25,7 @@ import javafx.scene.Scene;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
+import org.openide.util.Exceptions;
 import se.trixon.almond.nbp.fx.FxDialogPanel;
 import se.trixon.almond.nbp.fx.NbEditableList;
 import se.trixon.almond.util.Dict;
@@ -32,7 +34,7 @@ import se.trixon.almond.util.fx.control.editable_list.EditableList;
 import se.trixon.almond.util.swing.SwingHelper;
 import se.trixon.cric.core.ExecutorManager;
 import se.trixon.cric.core.StorageManager;
-import static se.trixon.cric.core.StorageManager.GSON;
+import static se.trixon.cric.core.StorageManager.JSON;
 import se.trixon.cric.core.Task;
 import se.trixon.cric.core.TaskManager;
 
@@ -106,18 +108,23 @@ public class TaskListEditor {
                     StorageManager.save();
                 })
                 .setOnClone(t -> {
-                    var original = t;
-                    var json = GSON.toJson(original);
-                    var clone = GSON.fromJson(json, original.getClass());
-                    var uuid = UUID.randomUUID().toString();
-                    clone.setId(uuid);
-                    clone.setLastRun(0);
-                    clone.setName("%s %s".formatted(clone.getName(), LocalDate.now().toString()));
-                    mTaskManager.getIdToItem().put(clone.getId(), clone);
+                    try {
+                        var original = t;
+                        var json = JSON.writeValueAsString(original);
+                        var clone = JSON.readValue(json, original.getClass());
+                        var uuid = UUID.randomUUID().toString();
+                        clone.setId(uuid);
+                        clone.setLastRun(0);
+                        clone.setName("%s %s".formatted(clone.getName(), LocalDate.now().toString()));
+                        mTaskManager.getIdToItem().put(clone.getId(), clone);
 
-                    StorageManager.save();
+                        StorageManager.save();
 
-                    return mTaskManager.getById(uuid);
+                        return mTaskManager.getById(uuid);
+                    } catch (JsonProcessingException ex) {
+                        Exceptions.printStackTrace(ex);
+                        return null;
+                    }
                 })
                 .setOnStart(task -> {
                     mExecutorManager.requestStart(task);

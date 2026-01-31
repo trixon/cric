@@ -15,15 +15,12 @@
  */
 package se.trixon.cric.core;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.ResourceBundle;
 import java.util.TreeSet;
 import java.util.UUID;
-import java.util.logging.Logger;
 import org.apache.commons.lang3.StringUtils;
-import se.trixon.almond.util.SystemHelper;
 import se.trixon.almond.util.fx.control.editable_list.EditableListItem;
 
 /**
@@ -32,39 +29,36 @@ import se.trixon.almond.util.fx.control.editable_list.EditableListItem;
  */
 public class Task implements EditableListItem {
 
-    private static final Logger LOGGER = Logger.getLogger(Task.class.getName());
-
-    @SerializedName("bindServices")
+    @JsonProperty("bindServices")
     private boolean mBindServices;
-    private transient final ResourceBundle mBundle = SystemHelper.getBundle(Task.class, "Bundle");
-    @SerializedName("compress")
+    @JsonProperty("compress")
     private int mCompress = 6;
-    @SerializedName("description")
+    @JsonProperty("description")
     private String mDescription;
-    @SerializedName("endian")
+    @JsonProperty("endian")
     private int mEndian;
-    @SerializedName("uuid")
+    @JsonProperty("uuid")
     private String mId = UUID.randomUUID().toString();
-    @SerializedName("ignoreSigning")
+    @JsonProperty("ignoreSigning")
     private boolean mIgnoreSigning;
-    @SerializedName("jlink")
+    @JsonProperty("jlink")
     private File mJlink;
-    @SerializedName("last_run")
+    @JsonProperty("last_run")
     private long mLastRun;
-    @SerializedName("launcher")
+    @JsonProperty("launcher")
     private String mLauncher;
-    @SerializedName("modulePaths")
+    @JsonProperty("modulePaths")
     private ArrayList<ModulePath> mModulePaths;
-    @SerializedName("name")
+    @JsonProperty("name")
     private String mName;
-    @SerializedName("noHeaders")
+    @JsonProperty("noHeaders")
     private boolean mNoHeaders;
-    @SerializedName("noManPages")
+    @JsonProperty("noManPages")
     private boolean mNoManPages;
     private transient final Options mOptions = Options.getInstance();
-    @SerializedName("output")
+    @JsonProperty("output")
     private File mOutput;
-    @SerializedName("stripDebug")
+    @JsonProperty("stripDebug")
     private boolean mStripDebug;
     private transient StringBuilder mValidationErrorBuilder = new StringBuilder();
 
@@ -312,9 +306,9 @@ public class Task implements EditableListItem {
 
     public static class ModulePath {
 
-        @SerializedName("directory")
+        @JsonProperty("directory")
         private File mDirectory;
-        @SerializedName("selectedModules")
+        @JsonProperty("selectedModules")
         private TreeSet<String> mSelectedModules;
 
         public ModulePath() {

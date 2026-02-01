@@ -17,14 +17,11 @@ package se.trixon.cric.core;
 
 import java.awt.Dimension;
 import java.util.HashMap;
-import java.util.ResourceBundle;
 import javafx.scene.Scene;
 import javax.swing.JButton;
 import javax.swing.SwingUtilities;
 import org.openide.DialogDescriptor;
 import org.openide.DialogDisplayer;
-import org.openide.util.NbBundle;
-import org.openide.windows.InputOutput;
 import se.trixon.almond.nbp.dialogs.NbMessage;
 import se.trixon.almond.nbp.fx.FxDialogPanel;
 import se.trixon.almond.util.Dict;
@@ -37,10 +34,8 @@ import se.trixon.cric.ui.TaskInfoPane;
  */
 public class ExecutorManager {
 
-    private final ResourceBundle mBundle = NbBundle.getBundle(ExecutorManager.class);
     private final HashMap<String, Executor> mExecutors = new HashMap<>();
-    private InputOutput mInputOutput;
-    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(800, 600);
+    private final Dimension mPreferredSize = SwingHelper.getUIScaledDim(900, 500);
 
     public static ExecutorManager getInstance() {
         return Holder.INSTANCE;

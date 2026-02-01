@@ -165,7 +165,7 @@ public class TaskEditor extends BorderPane {
         mNoHeadersCheckBox.setTooltip(new Tooltip("Exclude include header files"));
         mNoManPagesCheckBox = new CheckBox("no-man-pages");
         mNoManPagesCheckBox.setTooltip(new Tooltip("Exclude man pages"));
-        mStripDebugCheckBox = new CheckBox("strip-debug");
+        mStripDebugCheckBox = new CheckBox("strip-java-debug-attributes");
         mStripDebugCheckBox.setTooltip(new Tooltip("Strip debug information"));
 
         mCompressComboBox = new ComboBox<>();

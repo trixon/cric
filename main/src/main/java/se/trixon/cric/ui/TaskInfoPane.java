@@ -93,7 +93,7 @@ public class TaskInfoPane extends VBox {
             sb.append(getBallotBox(task.isIgnoreSigning())).append(" ignore-signing-information").append(separator);
             sb.append(getBallotBox(task.isNoHeaders())).append(" no-header-files").append(separator);
             sb.append(getBallotBox(task.isNoManPages())).append(" no-man-pages").append(separator);
-            sb.append(getBallotBox(task.isStripDebug())).append(" strip-debug");
+            sb.append(getBallotBox(task.isStripDebug())).append(" strip-java-debug-attributes");
 
             mOptionsBallotsText.setText(sb.toString());
 
@@ -162,7 +162,7 @@ public class TaskInfoPane extends VBox {
         }
 
         private char getBallotBox(boolean checked) {
-            return checked ? '◉' : '○';
+            return checked ? '☑' : '☐';
         }
     }
 }

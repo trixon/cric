@@ -94,7 +94,7 @@ public class Task implements EditableListItem {
         }
 
         if (mStripDebug) {
-            command.add("--strip-debug");
+            command.add("--strip-java-debug-attributes");
         }
 
         command.add("--compress");

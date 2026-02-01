@@ -16,7 +16,6 @@
 package se.trixon.cric.core;
 
 import java.util.List;
-import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
@@ -28,7 +27,6 @@ import org.openide.NotifyDescriptor;
 import org.openide.awt.StatusDisplayer;
 import org.openide.util.Cancellable;
 import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
 import org.openide.windows.FoldHandle;
 import org.openide.windows.IOFolding;
 import org.openide.windows.IOProvider;
@@ -43,7 +41,6 @@ import se.trixon.almond.util.Dict;
  */
 public class Executor implements Runnable {
 
-    private final ResourceBundle mBundle = NbBundle.getBundle(Executor.class);
     private Thread mExecutorThread;
     private final InputOutput mInputOutput;
     private FoldHandle mMainFoldHandle;
